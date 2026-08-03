@@ -208,21 +208,17 @@ func _gotk4_goMarshal(
 	box := intern.TryGet(unsafe.Pointer(gobject))
 	if box == nil {
 		log.Printf(
-			"warning: object %s %v cannot be resurrected",
-			typeFromObject(unsafe.Pointer(gobject)),
+			"warning: object %v cannot be resurrected for closure %v",
 			unsafe.Pointer(gobject),
+			unsafe.Pointer(gclosure),
 		)
 		return
 	}
 
 	fs := box.Closures().Load(unsafe.Pointer(gclosure))
 	if fs == nil {
-		log.Printf(
-			"warning: object %s %v missing closure %v",
-			typeFromObject(unsafe.Pointer(gobject)),
-			unsafe.Pointer(gobject),
-			unsafe.Pointer(gclosure),
-		)
+		log.Printf("warning: object %v missing closure %v",
+			unsafe.Pointer(gobject), unsafe.Pointer(gclosure))
 		return
 	}
 
@@ -474,6 +470,9 @@ func WipeAllClosures(objector Objector) {
 // never be used again. Resurrecting the object again is undefined behavior.
 func Destroy(objector Objector) {
 	v := BaseObject(objector)
+	if v == nil {
+		return
+	}
 	v.destroy()
 }
 
@@ -511,10 +510,10 @@ func ConnectGeneratedClosure(
 
 	// Hold a strong reference mapping the Go closure to the object.
 	closures := v.box.Closures()
-	closures.Register(unsafe.Pointer(gclosure), fs)
+	closures.RegisterSignal(unsafe.Pointer(gclosure), fs)
 
-	// Just in case.
-	C.g_object_watch_closure(v.native(), gclosure)
+	// Keep the closure independent of the owning GObject; the signal connection
+	// and the toggle ref already keep it alive during signal emission.
 
 	// TODO: intern this.
 	csignal := (*C.gchar)(C.CString(signal))
@@ -538,8 +537,7 @@ func ConnectedGeneratedClosure(closureData uintptr) *closure.FuncStack {
 	box := intern.TryGet(unsafe.Pointer(data.GObject))
 	if box == nil {
 		log.Printf(
-			"gotk4: warning: object %s %v cannot be resurrected",
-			typeFromObject(unsafe.Pointer(data.GObject)),
+			"gotk4: warning: object %v cannot be resurrected for generated closure",
 			unsafe.Pointer(data.GObject),
 		)
 		return nil
@@ -547,12 +545,8 @@ func ConnectedGeneratedClosure(closureData uintptr) *closure.FuncStack {
 
 	fs := box.Closures().Load(unsafe.Pointer(data.GClosure))
 	if fs == nil {
-		log.Printf(
-			"gotk4: warning: object %s %v missing closure %v",
-			typeFromObject(unsafe.Pointer(data.GObject)),
-			unsafe.Pointer(data.GObject),
-			unsafe.Pointer(data.GClosure),
-		)
+		log.Printf("gotk4: warning: object %v missing closure %v",
+			unsafe.Pointer(data.GObject), unsafe.Pointer(data.GClosure))
 		return nil
 	}
 
@@ -657,13 +651,30 @@ func newObject(ptr unsafe.Pointer, take bool) *Object {
 		return nil
 	}
 
+	box := intern.Get(ptr, take)
+	if box == nil {
+		// The object is in the small window between cleanup being claimed and
+		// the C toggle reference being removed. Do not expose a wrapper that
+		// cannot safely call any native method.
+		return nil
+	}
+
 	return &Object{
-		box: intern.Get(ptr, take),
+		box: box,
 	}
 }
 
 func (v *Object) destroy() {
+	if v.box == nil {
+		// Already destroyed. Idempotent guard so callers can safely
+		// destroy the same object twice (e.g., once explicitly and once
+		// via finalization-driven cleanup). The intern.Free CAS also
+		// guards, but checking v.box here allows the *Object wrapper to
+		// short-circuit without touching C.
+		return
+	}
 	intern.Free(v.box)
+	v.box = nil
 }
 
 // Cast casts v to the concrete Go type (e.g. *Object to *gtk.Entry).
@@ -899,7 +910,10 @@ func (v *Object) ThawNotify() {
 func _gotk4_notifyHandlerTramp(obj C.gpointer, paramSpec C.gpointer, closureData C.guintptr) {
 	closure := ConnectedGeneratedClosure(uintptr(closureData))
 	if closure == nil {
-		panic("given unknown closure user_data")
+		// The owning GObject may have been explicitly destroyed while a C
+		// closure is still registered. Its callback has been retired; a late
+		// C invocation must be a no-op rather than a process-wide panic.
+		return
 	}
 	defer closure.TryRepanic()
 
@@ -1490,8 +1504,14 @@ func marshalPointer(p uintptr) (interface{}, error) {
 	return unsafe.Pointer(c), nil
 }
 
+//go:nocheckptr
 func marshalObject(p uintptr) (interface{}, error) {
 	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))
+	// An empty or non-object value has no object pointer. Guard before
+	// converting the result into a Go wrapper.
+	if c == nil {
+		return nil, nil
+	}
 	return Take(unsafe.Pointer(c)), nil
 }
 
@@ -1685,11 +1705,17 @@ func (v *Value) Boxed() unsafe.Pointer {
 	return p
 }
 
-// Object is a wrapper around g_value_get_object(). The returned object is taken
-// its own reference.
+// Object is a wrapper around g_value_get_object(). The returned object is
+// transfer-none and is wrapped with a Go-managed reference. It returns nil for
+// an empty value.
 func (v *Value) Object() *Object {
 	p := unsafe.Pointer(C.g_value_get_object(v.native()))
-	o := Take(unsafe.Pointer(p))
+	// g_value_get_object returns NULL for empty or non-object values;
+	// Take(NULL) would crash in intern.Get. Guard here.
+	if p == nil {
+		return nil
+	}
+	o := Take(p)
 	runtime.KeepAlive(v)
 	return o
 }
