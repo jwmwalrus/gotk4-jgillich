@@ -70,9 +70,7 @@ func closureNew(v *Object, f interface{}, signal bool) *C.GClosure {
 		closures.Register(unsafe.Pointer(gclosure), fs)
 	}
 
-	// Keep the closure independent of the owning GObject. The toggle ref from
-	// intern.Get keeps the object alive during signal emission, while the
-	// signal list owns the closure.
+	C.g_object_watch_closure(v.native(), gclosure)
 	C.g_closure_set_meta_marshal(gclosure, C.gpointer(v.Native()), (*[0]byte)(C._gotk4_goMarshal))
 	C.g_closure_add_finalize_notifier(gclosure, C.gpointer(v.Native()), (*[0]byte)(C._gotk4_removeClosure))
 

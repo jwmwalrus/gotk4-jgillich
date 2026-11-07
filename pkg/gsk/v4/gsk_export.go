@@ -48,17 +48,21 @@ func _gotk4_gsk4_PathForEachFunc(arg1 C.GskPathOperation, arg2 *C.graphene_point
 		fn = v.(PathForEachFunc)
 	}
 
-	var _op PathOperation    // out
-	var _pts *graphene.Point // out
-	var _nPts uint           // out
-	var _weight float32      // out
+	var _op PathOperation     // out
+	var _pts []graphene.Point // out
+	var _weight float32       // out
 
 	_op = PathOperation(arg1)
-	_pts = (*graphene.Point)(gextras.NewStructNative(unsafe.Pointer(arg2)))
-	_nPts = uint(arg3)
+	{
+		src := unsafe.Slice((*C.graphene_point_t)(arg2), arg3)
+		_pts = make([]graphene.Point, arg3)
+		for i := 0; i < int(arg3); i++ {
+			_pts[i] = *(*graphene.Point)(gextras.NewStructNative(unsafe.Pointer((&src[i]))))
+		}
+	}
 	_weight = float32(arg4)
 
-	ok := fn(_op, _pts, _nPts, _weight)
+	ok := fn(_op, _pts, _weight)
 
 	var _ bool
 

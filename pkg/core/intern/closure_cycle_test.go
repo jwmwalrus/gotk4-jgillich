@@ -89,10 +89,9 @@ func TestClosureCycleGrowth(t *testing.T) {
 // under the race detector. Hammer Get/TryGet from many goroutines while
 // a finalizer may be running. Run with: go test -race.
 //
-// We use Take (intern.Get with take=true) which is the established safe
-// pattern for re-interning an existing widget: the existing box is
-// returned via TryGet on shared.mu.RLock (no add_toggle_ref, no unref),
-// so the ref count stays stable across the loop.
+// We use Take (intern.Get with take=true) to exercise the existing-entry
+// transfer-none path. Get serializes access with shared.mu and reuses the
+// existing toggle, so the ref count stays stable across the loop.
 func TestConcurrentGetTryGet(t *testing.T) {
 	btn := gtk.NewButton()
 	defer glib.Destroy(glib.BaseObject(btn))
@@ -146,9 +145,10 @@ func TestApplicationWindowLifecycle(t *testing.T) {
 				_ = win
 			})
 
-			// Explicit destroy: glib.Destroy unreffed via intern.Free
-			// + g_object_unref, freeing the C object and firing weak
-			// ref callbacks (leaktest.Track fires).
+			// GTK destruction releases the window's widget-side references.
+			// glib.Destroy separately removes the Go interning toggle ref (the
+			// remaining reference owned by the wrapper), allowing finalization.
+			win.Destroy()
 			glib.Destroy(glib.BaseObject(win))
 		}()
 	}

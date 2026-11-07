@@ -17,12 +17,12 @@ func TestEmptyValueObjectIsNil(t *testing.T) {
 	}
 }
 
-// TestMarshalObjectTransferFull verifies marshalObject (called via
+// TestMarshalObjectTransferNone verifies marshalObject (called via
 // Value.GoValue for TypeObject) doesn't leak a reference.
 // Repeated conversion must preserve the original native reference count.
-func TestMarshalObjectTransferFull(t *testing.T) {
+func TestMarshalObjectTransferNone(t *testing.T) {
 	p := leaktest.NewGObject()
-	obj := glib.Take(p)
+	obj := glib.AssumeOwnership(p)
 	tracked := leaktest.Track(p)
 
 	v := glib.InitValue(glib.TypeObject)
@@ -42,12 +42,15 @@ func TestMarshalObjectTransferFull(t *testing.T) {
 		t.Errorf("LEAK: ref_count grew from %d to %d after 10 GoValue() calls",
 			refBefore, refAfter)
 	}
+	v = nil
+	glib.Destroy(obj)
+	leaktest.AssertFreed(t, tracked, "marshal-object-transfer-none")
 }
 
-// TestValueObjectTransferFull verifies Value.Object() specifically.
-func TestValueObjectTransferFull(t *testing.T) {
+// TestValueObjectTransferNone verifies Value.Object() specifically.
+func TestValueObjectTransferNone(t *testing.T) {
 	p := leaktest.NewGObject()
-	obj := glib.Take(p)
+	obj := glib.AssumeOwnership(p)
 	tracked := leaktest.Track(p)
 
 	v := glib.InitValue(glib.TypeObject)
@@ -65,13 +68,16 @@ func TestValueObjectTransferFull(t *testing.T) {
 		t.Errorf("LEAK: ref_count grew from %d to %d after 10 Object() calls",
 			refBefore, refAfter)
 	}
+	v = nil
+	glib.Destroy(obj)
+	leaktest.AssertFreed(t, tracked, "value-object-transfer-none")
 }
 
 // TestCastDoesNotLeak verifies Cast() (g_value_init_from_instance +
 // GoValue internally) doesn't leak.
 func TestCastDoesNotLeak(t *testing.T) {
 	p := leaktest.NewGObject()
-	obj := glib.Take(p)
+	obj := glib.AssumeOwnership(p)
 	tracked := leaktest.Track(p)
 
 	refBefore := tracked.RefCount()
@@ -85,4 +91,6 @@ func TestCastDoesNotLeak(t *testing.T) {
 		t.Errorf("LEAK: ref_count grew from %d to %d after 20 Cast() calls",
 			refBefore, refAfter)
 	}
+	glib.Destroy(obj)
+	leaktest.AssertFreed(t, tracked, "cast-does-not-leak")
 }

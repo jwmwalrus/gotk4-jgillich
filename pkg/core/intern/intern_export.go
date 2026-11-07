@@ -14,30 +14,38 @@ import (
 // the C GObject.
 //
 //export goToggleNotify
-func goToggleNotify(_ C.gpointer, obj *C.GObject, isLastInt C.gboolean) {
-	gobject := unsafe.Pointer(obj)
-	isLast := isLastInt != C.FALSE
+func goToggleNotify(data C.guintptr, obj *C.GObject, isLastInt C.gboolean) {
+	toggleNotify(uintptr(data), unsafe.Pointer(obj), isLastInt != C.FALSE)
+}
+
+func toggleNotify(token uintptr, gobject unsafe.Pointer, isLast bool) {
 
 	shared.mu.Lock()
-	defer shared.mu.Unlock()
-	if _, pending := shared.cleanup[gobject]; pending {
-		// The cleanup owner keeps the intern state stable until the C removal
-		// returns. Do not let a re-entrant notification resurrect it.
+	e := shared.byToken[token]
+	if e == nil || e.object != gobject || e.phase == entryRemoving {
+		shared.mu.Unlock()
 		return
 	}
-
+	if e.phase == entryCleanupQueued && isLast {
+		// The finalizer already owns the queued removal and there is no strong
+		// Box to re-weakify. A later non-last notification may still promote
+		// the entry through makeStrong.
+		shared.mu.Unlock()
+		return
+	}
 	var box *Box
 	if isLast {
-		box = makeWeak(gobject)
+		box = makeWeak(e)
 	} else {
-		box = makeStrong(gobject)
+		box = makeStrong(e)
 	}
+	shared.mu.Unlock()
 
 	if box == nil {
 		if toggleRefs {
 			slog.Debug(
 				"goToggleNotify: box not found",
-				"object", unsafe.Pointer(obj))
+				"object", gobject)
 		}
 		return
 	}
@@ -46,28 +54,13 @@ func goToggleNotify(_ C.gpointer, obj *C.GObject, isLastInt C.gboolean) {
 		slog.Debug(
 			"goToggleNotify: finished",
 			"is_last", isLast,
-			"finalizing", box.finalizing.Load(),
-			objInfo(unsafe.Pointer(obj)))
+			"generation", box.generation,
+			objInfo(gobject))
 	}
 
-	// If a finalizer (or Free) is in the middle of cleanup, ignore the
-	// isLast transition: the toggle-ref removal path owns the lifecycle
-	// now. For !isLast during finalization, makeStrong has already
-	// promoted the Box back to strong and cleared the finalizer. The
-	// queued finalizeBox will see either:
-	//   (a) no shared.weak entry → bail (Free won the claim), OR
-	//   (b) shared.strong present → re-arm and return (race recovery)
-	// so makeStrong does not race a later removal.
-	if box.finalizing.Load() {
-		return
-	}
 }
 
-// finishRemovingToggleRef is called after the toggle reference removal routine
-// has returned. It removes the GObject from the global maps and drops the
-// plain reference owned by the Box, if any.
-//
-//export goFinishRemovingToggleRef
-func goFinishRemovingToggleRef(gobject unsafe.Pointer) {
-	finishCleanup(gobject)
+//export goRemoveQueuedToggleRef
+func goRemoveQueuedToggleRef(token C.guintptr) {
+	beginQueuedCleanup(uintptr(token))
 }

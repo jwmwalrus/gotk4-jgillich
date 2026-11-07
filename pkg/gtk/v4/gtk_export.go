@@ -14,6 +14,7 @@ import (
 	"github.com/diamondburned/gotk4/pkg/gdk/v4"
 	"github.com/diamondburned/gotk4/pkg/gio/v2"
 	"github.com/diamondburned/gotk4/pkg/glib/v2"
+	"github.com/diamondburned/gotk4/pkg/graphene"
 	"github.com/diamondburned/gotk4/pkg/pango"
 )
 
@@ -760,6 +761,30 @@ func _gotk4_gtk4_ShortcutFunc(arg1 *C.GtkWidget, arg2 *C.GVariant, arg3 C.gpoint
 	return cret
 }
 
+//export _gotk4_gtk4_TextBufferCommitNotify
+func _gotk4_gtk4_TextBufferCommitNotify(arg1 *C.GtkTextBuffer, arg2 C.GtkTextBufferNotifyFlags, arg3 C.guint, arg4 C.guint, arg5 C.gpointer) {
+	var fn TextBufferCommitNotify
+	{
+		v := gbox.Get(uintptr(arg5))
+		if v == nil {
+			panic(`callback not found`)
+		}
+		fn = v.(TextBufferCommitNotify)
+	}
+
+	var _buffer *TextBuffer          // out
+	var _flags TextBufferNotifyFlags // out
+	var _position uint               // out
+	var _length uint                 // out
+
+	_buffer = wrapTextBuffer(coreglib.Take(unsafe.Pointer(arg1)))
+	_flags = TextBufferNotifyFlags(arg2)
+	_position = uint(arg3)
+	_length = uint(arg4)
+
+	fn(_buffer, _flags, _position, _length)
+}
+
 //export _gotk4_gtk4_TextCharPredicate
 func _gotk4_gtk4_TextCharPredicate(arg1 C.gunichar, arg2 C.gpointer) (cret C.gboolean) {
 	var fn TextCharPredicate
@@ -1355,13 +1380,748 @@ func _gotk4_gtk4_TreeViewSearchEqualFunc(arg1 *C.GtkTreeModel, arg2 C.int, arg3 
 	return cret
 }
 
+//export _gotk4_gtk4_AccessibleInterface_get_accessible_id
+func _gotk4_gtk4_AccessibleInterface_get_accessible_id(arg0 *C.GtkAccessible) (cret *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.AccessibleID == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.AccessibleID, got none")
+	}
+
+	utf8 := overrides.AccessibleID()
+
+	var _ string
+
+	if utf8 != "" {
+		cret = (*C.char)(unsafe.Pointer(C.CString(utf8)))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleInterface_get_accessible_parent
+func _gotk4_gtk4_AccessibleInterface_get_accessible_parent(arg0 *C.GtkAccessible) (cret *C.GtkAccessible) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.AccessibleParent == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.AccessibleParent, got none")
+	}
+
+	accessible := overrides.AccessibleParent()
+
+	var _ *Accessible
+
+	if accessible != nil {
+		cret = (*C.GtkAccessible)(unsafe.Pointer(coreglib.InternObject(accessible).Native()))
+		C.g_object_ref(C.gpointer(coreglib.InternObject(accessible).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleInterface_get_at_context
+func _gotk4_gtk4_AccessibleInterface_get_at_context(arg0 *C.GtkAccessible) (cret *C.GtkATContext) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.AtContext == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.AtContext, got none")
+	}
+
+	atContext := overrides.AtContext()
+
+	var _ ATContexter
+
+	if atContext != nil {
+		cret = (*C.GtkATContext)(unsafe.Pointer(coreglib.InternObject(atContext).Native()))
+		C.g_object_ref(C.gpointer(coreglib.InternObject(atContext).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleInterface_get_bounds
+func _gotk4_gtk4_AccessibleInterface_get_bounds(arg0 *C.GtkAccessible, arg1 *C.int, arg2 *C.int, arg3 *C.int, arg4 *C.int) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.Bounds == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.Bounds, got none")
+	}
+
+	x, y, width, height, ok := overrides.Bounds()
+
+	var _ int
+	var _ int
+	var _ int
+	var _ int
+	var _ bool
+
+	*arg1 = C.int(x)
+	*arg2 = C.int(y)
+	*arg3 = C.int(width)
+	*arg4 = C.int(height)
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleInterface_get_first_accessible_child
+func _gotk4_gtk4_AccessibleInterface_get_first_accessible_child(arg0 *C.GtkAccessible) (cret *C.GtkAccessible) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.FirstAccessibleChild == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.FirstAccessibleChild, got none")
+	}
+
+	accessible := overrides.FirstAccessibleChild()
+
+	var _ *Accessible
+
+	if accessible != nil {
+		cret = (*C.GtkAccessible)(unsafe.Pointer(coreglib.InternObject(accessible).Native()))
+		C.g_object_ref(C.gpointer(coreglib.InternObject(accessible).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleInterface_get_next_accessible_sibling
+func _gotk4_gtk4_AccessibleInterface_get_next_accessible_sibling(arg0 *C.GtkAccessible) (cret *C.GtkAccessible) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.NextAccessibleSibling == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.NextAccessibleSibling, got none")
+	}
+
+	accessible := overrides.NextAccessibleSibling()
+
+	var _ *Accessible
+
+	if accessible != nil {
+		cret = (*C.GtkAccessible)(unsafe.Pointer(coreglib.InternObject(accessible).Native()))
+		C.g_object_ref(C.gpointer(coreglib.InternObject(accessible).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleInterface_get_platform_state
+func _gotk4_gtk4_AccessibleInterface_get_platform_state(arg0 *C.GtkAccessible, arg1 C.GtkAccessiblePlatformState) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleOverrides](instance0)
+	if overrides.PlatformState == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleOverrides.PlatformState, got none")
+	}
+
+	var _state AccessiblePlatformState // out
+
+	_state = AccessiblePlatformState(arg1)
+
+	ok := overrides.PlatformState(_state)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleRangeInterface_set_current_value
+func _gotk4_gtk4_AccessibleRangeInterface_set_current_value(arg0 *C.GtkAccessibleRange, arg1 C.double) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleRangeOverrides](instance0)
+	if overrides.SetCurrentValue == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleRangeOverrides.SetCurrentValue, got none")
+	}
+
+	var _value float64 // out
+
+	_value = float64(arg1)
+
+	ok := overrides.SetCurrentValue(_value)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_get_caret_position
+func _gotk4_gtk4_AccessibleTextInterface_get_caret_position(arg0 *C.GtkAccessibleText) (cret C.uint) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.CaretPosition == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.CaretPosition, got none")
+	}
+
+	guint := overrides.CaretPosition()
+
+	var _ uint
+
+	cret = C.uint(guint)
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_get_contents
+func _gotk4_gtk4_AccessibleTextInterface_get_contents(arg0 *C.GtkAccessibleText, arg1 C.uint, arg2 C.uint) (cret *C.GBytes) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.Contents == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.Contents, got none")
+	}
+
+	var _start uint // out
+	var _end uint   // out
+
+	_start = uint(arg1)
+	_end = uint(arg2)
+
+	bytes := overrides.Contents(_start, _end)
+
+	var _ *glib.Bytes
+
+	cret = (*C.GBytes)(gextras.StructNative(unsafe.Pointer(bytes)))
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_get_contents_at
+func _gotk4_gtk4_AccessibleTextInterface_get_contents_at(arg0 *C.GtkAccessibleText, arg1 C.uint, arg2 C.GtkAccessibleTextGranularity, arg3 *C.uint, arg4 *C.uint) (cret *C.GBytes) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.ContentsAt == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.ContentsAt, got none")
+	}
+
+	var _offset uint                           // out
+	var _granularity AccessibleTextGranularity // out
+
+	_offset = uint(arg1)
+	_granularity = AccessibleTextGranularity(arg2)
+
+	start, end, bytes := overrides.ContentsAt(_offset, _granularity)
+
+	var _ uint
+	var _ uint
+	var _ *glib.Bytes
+
+	*arg3 = C.uint(start)
+	*arg4 = C.uint(end)
+	cret = (*C.GBytes)(gextras.StructNative(unsafe.Pointer(bytes)))
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_get_extents
+func _gotk4_gtk4_AccessibleTextInterface_get_extents(arg0 *C.GtkAccessibleText, arg1 C.uint, arg2 C.uint, arg3 *C.graphene_rect_t) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.Extents == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.Extents, got none")
+	}
+
+	var _start uint             // out
+	var _end uint               // out
+	var _extents *graphene.Rect // out
+
+	_start = uint(arg1)
+	_end = uint(arg2)
+	_extents = (*graphene.Rect)(gextras.NewStructNative(unsafe.Pointer(arg3)))
+
+	ok := overrides.Extents(_start, _end, _extents)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_get_offset
+func _gotk4_gtk4_AccessibleTextInterface_get_offset(arg0 *C.GtkAccessibleText, arg1 *C.graphene_point_t, arg2 *C.uint) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.Offset == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.Offset, got none")
+	}
+
+	var _point *graphene.Point // out
+
+	_point = (*graphene.Point)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	offset, ok := overrides.Offset(_point)
+
+	var _ uint
+	var _ bool
+
+	*arg2 = C.uint(offset)
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_get_selection
+func _gotk4_gtk4_AccessibleTextInterface_get_selection(arg0 *C.GtkAccessibleText, arg1 *C.gsize, arg2 **C.GtkAccessibleTextRange) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.Selection == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.Selection, got none")
+	}
+
+	ranges, ok := overrides.Selection()
+
+	var _ []AccessibleTextRange
+	var _ bool
+
+	*arg1 = (C.gsize)(len(ranges))
+	*arg2 = (*C.GtkAccessibleTextRange)(C.calloc(C.size_t(len(ranges)), C.size_t(unsafe.Sizeof(uint(0)))))
+	{
+		out := unsafe.Slice((*C.GtkAccessibleTextRange)(*arg2), len(ranges))
+		for i := range ranges {
+			out[i] = *(*C.GtkAccessibleTextRange)(gextras.StructNative(unsafe.Pointer((&ranges[i]))))
+		}
+	}
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_set_caret_position
+func _gotk4_gtk4_AccessibleTextInterface_set_caret_position(arg0 *C.GtkAccessibleText, arg1 C.uint) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.SetCaretPosition == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.SetCaretPosition, got none")
+	}
+
+	var _offset uint // out
+
+	_offset = uint(arg1)
+
+	ok := overrides.SetCaretPosition(_offset)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_AccessibleTextInterface_set_selection
+func _gotk4_gtk4_AccessibleTextInterface_set_selection(arg0 *C.GtkAccessibleText, arg1 C.gsize, arg2 *C.GtkAccessibleTextRange) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[AccessibleTextOverrides](instance0)
+	if overrides.SetSelection == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AccessibleTextOverrides.SetSelection, got none")
+	}
+
+	var _i uint                      // out
+	var __range *AccessibleTextRange // out
+
+	_i = uint(arg1)
+	__range = (*AccessibleTextRange)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+
+	ok := overrides.SetSelection(_i, __range)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_ActionableInterface_get_action_name
+func _gotk4_gtk4_ActionableInterface_get_action_name(arg0 *C.GtkActionable) (cret *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ActionableOverrides](instance0)
+	if overrides.ActionName == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ActionableOverrides.ActionName, got none")
+	}
+
+	utf8 := overrides.ActionName()
+
+	var _ string
+
+	if utf8 != "" {
+		cret = (*C.char)(unsafe.Pointer(C.CString(utf8)))
+		defer C.free(unsafe.Pointer(cret))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_ActionableInterface_get_action_target_value
+func _gotk4_gtk4_ActionableInterface_get_action_target_value(arg0 *C.GtkActionable) (cret *C.GVariant) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ActionableOverrides](instance0)
+	if overrides.ActionTargetValue == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ActionableOverrides.ActionTargetValue, got none")
+	}
+
+	variant := overrides.ActionTargetValue()
+
+	var _ *glib.Variant
+
+	if variant != nil {
+		cret = (*C.GVariant)(gextras.StructNative(unsafe.Pointer(variant)))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_ActionableInterface_set_action_name
+func _gotk4_gtk4_ActionableInterface_set_action_name(arg0 *C.GtkActionable, arg1 *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ActionableOverrides](instance0)
+	if overrides.SetActionName == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ActionableOverrides.SetActionName, got none")
+	}
+
+	var _actionName string // out
+
+	if arg1 != nil {
+		_actionName = C.GoString((*C.gchar)(unsafe.Pointer(arg1)))
+	}
+
+	overrides.SetActionName(_actionName)
+}
+
+//export _gotk4_gtk4_ActionableInterface_set_action_target_value
+func _gotk4_gtk4_ActionableInterface_set_action_target_value(arg0 *C.GtkActionable, arg1 *C.GVariant) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ActionableOverrides](instance0)
+	if overrides.SetActionTargetValue == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ActionableOverrides.SetActionTargetValue, got none")
+	}
+
+	var _targetValue *glib.Variant // out
+
+	if arg1 != nil {
+		_targetValue = (*glib.Variant)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+		C.g_variant_ref(arg1)
+		runtime.SetFinalizer(
+			gextras.StructIntern(unsafe.Pointer(_targetValue)),
+			func(intern *struct{ C unsafe.Pointer }) {
+				C.g_variant_unref((*C.GVariant)(intern.C))
+			},
+		)
+	}
+
+	overrides.SetActionTargetValue(_targetValue)
+}
+
+//export _gotk4_gtk4_BuildableIface_add_child
+func _gotk4_gtk4_BuildableIface_add_child(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder, arg2 *C.GObject, arg3 *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.AddChild == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.AddChild, got none")
+	}
+
+	var _builder *Builder       // out
+	var _child *coreglib.Object // out
+	var _typ string             // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	_child = coreglib.Take(unsafe.Pointer(arg2))
+	if arg3 != nil {
+		_typ = C.GoString((*C.gchar)(unsafe.Pointer(arg3)))
+	}
+
+	overrides.AddChild(_builder, _child, _typ)
+}
+
+//export _gotk4_gtk4_BuildableIface_custom_finished
+func _gotk4_gtk4_BuildableIface_custom_finished(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder, arg2 *C.GObject, arg3 *C.char, arg4 C.gpointer) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.CustomFinished == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.CustomFinished, got none")
+	}
+
+	var _builder *Builder       // out
+	var _child *coreglib.Object // out
+	var _tagname string         // out
+	var _data unsafe.Pointer    // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	if arg2 != nil {
+		_child = coreglib.Take(unsafe.Pointer(arg2))
+	}
+	_tagname = C.GoString((*C.gchar)(unsafe.Pointer(arg3)))
+	_data = (unsafe.Pointer)(unsafe.Pointer(arg4))
+
+	overrides.CustomFinished(_builder, _child, _tagname, _data)
+}
+
+//export _gotk4_gtk4_BuildableIface_custom_tag_end
+func _gotk4_gtk4_BuildableIface_custom_tag_end(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder, arg2 *C.GObject, arg3 *C.char, arg4 C.gpointer) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.CustomTagEnd == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.CustomTagEnd, got none")
+	}
+
+	var _builder *Builder       // out
+	var _child *coreglib.Object // out
+	var _tagname string         // out
+	var _data unsafe.Pointer    // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	if arg2 != nil {
+		_child = coreglib.Take(unsafe.Pointer(arg2))
+	}
+	_tagname = C.GoString((*C.gchar)(unsafe.Pointer(arg3)))
+	_data = (unsafe.Pointer)(unsafe.Pointer(arg4))
+
+	overrides.CustomTagEnd(_builder, _child, _tagname, _data)
+}
+
+//export _gotk4_gtk4_BuildableIface_custom_tag_start
+func _gotk4_gtk4_BuildableIface_custom_tag_start(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder, arg2 *C.GObject, arg3 *C.char, arg4 *C.GtkBuildableParser, arg5 *C.gpointer) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.CustomTagStart == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.CustomTagStart, got none")
+	}
+
+	var _builder *Builder       // out
+	var _child *coreglib.Object // out
+	var _tagname string         // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	if arg2 != nil {
+		_child = coreglib.Take(unsafe.Pointer(arg2))
+	}
+	_tagname = C.GoString((*C.gchar)(unsafe.Pointer(arg3)))
+
+	parser, data, ok := overrides.CustomTagStart(_builder, _child, _tagname)
+
+	var _ *BuildableParser
+	var _ unsafe.Pointer
+	var _ bool
+
+	*arg4 = *(*C.GtkBuildableParser)(gextras.StructNative(unsafe.Pointer(parser)))
+	*arg5 = (C.gpointer)(unsafe.Pointer(data))
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_BuildableIface_get_id
+func _gotk4_gtk4_BuildableIface_get_id(arg0 *C.GtkBuildable) (cret *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.ID == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.ID, got none")
+	}
+
+	utf8 := overrides.ID()
+
+	var _ string
+
+	cret = (*C.char)(unsafe.Pointer(C.CString(utf8)))
+	defer C.free(unsafe.Pointer(cret))
+
+	return cret
+}
+
+//export _gotk4_gtk4_BuildableIface_get_internal_child
+func _gotk4_gtk4_BuildableIface_get_internal_child(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder, arg2 *C.char) (cret *C.GObject) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.InternalChild == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.InternalChild, got none")
+	}
+
+	var _builder *Builder // out
+	var _childname string // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	_childname = C.GoString((*C.gchar)(unsafe.Pointer(arg2)))
+
+	object := overrides.InternalChild(_builder, _childname)
+
+	var _ *coreglib.Object
+
+	cret = (*C.GObject)(unsafe.Pointer(object.Native()))
+
+	return cret
+}
+
+//export _gotk4_gtk4_BuildableIface_parser_finished
+func _gotk4_gtk4_BuildableIface_parser_finished(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.ParserFinished == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.ParserFinished, got none")
+	}
+
+	var _builder *Builder // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+
+	overrides.ParserFinished(_builder)
+}
+
+//export _gotk4_gtk4_BuildableIface_set_buildable_property
+func _gotk4_gtk4_BuildableIface_set_buildable_property(arg0 *C.GtkBuildable, arg1 *C.GtkBuilder, arg2 *C.char, arg3 *C.GValue) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.SetBuildableProperty == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.SetBuildableProperty, got none")
+	}
+
+	var _builder *Builder      // out
+	var _name string           // out
+	var _value *coreglib.Value // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	_name = C.GoString((*C.gchar)(unsafe.Pointer(arg2)))
+	_value = coreglib.ValueFromNative(unsafe.Pointer(arg3))
+
+	overrides.SetBuildableProperty(_builder, _name, _value)
+}
+
+//export _gotk4_gtk4_BuildableIface_set_id
+func _gotk4_gtk4_BuildableIface_set_id(arg0 *C.GtkBuildable, arg1 *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuildableOverrides](instance0)
+	if overrides.SetID == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuildableOverrides.SetID, got none")
+	}
+
+	var _id string // out
+
+	_id = C.GoString((*C.gchar)(unsafe.Pointer(arg1)))
+
+	overrides.SetID(_id)
+}
+
+//export _gotk4_gtk4_BuilderScopeInterface_get_type_from_function
+func _gotk4_gtk4_BuilderScopeInterface_get_type_from_function(arg0 *C.GtkBuilderScope, arg1 *C.GtkBuilder, arg2 *C.char) (cret C.GType) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuilderScopeOverrides](instance0)
+	if overrides.TypeFromFunction == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuilderScopeOverrides.TypeFromFunction, got none")
+	}
+
+	var _builder *Builder    // out
+	var _functionName string // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	_functionName = C.GoString((*C.gchar)(unsafe.Pointer(arg2)))
+
+	gType := overrides.TypeFromFunction(_builder, _functionName)
+
+	var _ coreglib.Type
+
+	cret = C.GType(gType)
+
+	return cret
+}
+
+//export _gotk4_gtk4_BuilderScopeInterface_get_type_from_name
+func _gotk4_gtk4_BuilderScopeInterface_get_type_from_name(arg0 *C.GtkBuilderScope, arg1 *C.GtkBuilder, arg2 *C.char) (cret C.GType) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[BuilderScopeOverrides](instance0)
+	if overrides.TypeFromName == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected BuilderScopeOverrides.TypeFromName, got none")
+	}
+
+	var _builder *Builder // out
+	var _typeName string  // out
+
+	_builder = wrapBuilder(coreglib.Take(unsafe.Pointer(arg1)))
+	_typeName = C.GoString((*C.gchar)(unsafe.Pointer(arg2)))
+
+	gType := overrides.TypeFromName(_builder, _typeName)
+
+	var _ coreglib.Type
+
+	cret = C.GType(gType)
+
+	return cret
+}
+
+//export _gotk4_gtk4_CellEditableIface_editing_done
+func _gotk4_gtk4_CellEditableIface_editing_done(arg0 *C.GtkCellEditable) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellEditableOverrides](instance0)
+	if overrides.EditingDone == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellEditableOverrides.EditingDone, got none")
+	}
+
+	overrides.EditingDone()
+}
+
+//export _gotk4_gtk4_CellEditableIface_remove_widget
+func _gotk4_gtk4_CellEditableIface_remove_widget(arg0 *C.GtkCellEditable) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellEditableOverrides](instance0)
+	if overrides.RemoveWidget == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellEditableOverrides.RemoveWidget, got none")
+	}
+
+	overrides.RemoveWidget()
+}
+
+//export _gotk4_gtk4_CellEditableIface_start_editing
+func _gotk4_gtk4_CellEditableIface_start_editing(arg0 *C.GtkCellEditable, arg1 *C.GdkEvent) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellEditableOverrides](instance0)
+	if overrides.StartEditing == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellEditableOverrides.StartEditing, got none")
+	}
+
+	var _event gdk.Eventer // out
+
+	if arg1 != nil {
+		{
+			objptr := unsafe.Pointer(arg1)
+
+			object := coreglib.Take(objptr)
+			casted := object.WalkCast(func(obj coreglib.Objector) bool {
+				_, ok := obj.(gdk.Eventer)
+				return ok
+			})
+			rv, ok := casted.(gdk.Eventer)
+			if !ok {
+				panic("no marshaler for " + object.TypeFromInstance().String() + " matching gdk.Eventer")
+			}
+			_event = rv
+		}
+	}
+
+	overrides.StartEditing(_event)
+}
+
 //export _gotk4_gtk4_CellEditable_ConnectEditingDone
 func _gotk4_gtk4_CellEditable_ConnectEditingDone(arg0 C.gpointer, arg1 C.guintptr) {
 	var f func()
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1377,7 +2137,7 @@ func _gotk4_gtk4_CellEditable_ConnectRemoveWidget(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1387,13 +2147,306 @@ func _gotk4_gtk4_CellEditable_ConnectRemoveWidget(arg0 C.gpointer, arg1 C.guintp
 	f()
 }
 
+//export _gotk4_gtk4_CellLayoutIface_add_attribute
+func _gotk4_gtk4_CellLayoutIface_add_attribute(arg0 *C.GtkCellLayout, arg1 *C.GtkCellRenderer, arg2 *C.char, arg3 C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.AddAttribute == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.AddAttribute, got none")
+	}
+
+	var _cell CellRendererer // out
+	var _attribute string    // out
+	var _column int          // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gtk.CellRendererer is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(CellRendererer)
+			return ok
+		})
+		rv, ok := casted.(CellRendererer)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gtk.CellRendererer")
+		}
+		_cell = rv
+	}
+	_attribute = C.GoString((*C.gchar)(unsafe.Pointer(arg2)))
+	_column = int(arg3)
+
+	overrides.AddAttribute(_cell, _attribute, _column)
+}
+
+//export _gotk4_gtk4_CellLayoutIface_clear
+func _gotk4_gtk4_CellLayoutIface_clear(arg0 *C.GtkCellLayout) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.Clear == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.Clear, got none")
+	}
+
+	overrides.Clear()
+}
+
+//export _gotk4_gtk4_CellLayoutIface_clear_attributes
+func _gotk4_gtk4_CellLayoutIface_clear_attributes(arg0 *C.GtkCellLayout, arg1 *C.GtkCellRenderer) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.ClearAttributes == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.ClearAttributes, got none")
+	}
+
+	var _cell CellRendererer // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gtk.CellRendererer is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(CellRendererer)
+			return ok
+		})
+		rv, ok := casted.(CellRendererer)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gtk.CellRendererer")
+		}
+		_cell = rv
+	}
+
+	overrides.ClearAttributes(_cell)
+}
+
+//export _gotk4_gtk4_CellLayoutIface_get_area
+func _gotk4_gtk4_CellLayoutIface_get_area(arg0 *C.GtkCellLayout) (cret *C.GtkCellArea) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.Area == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.Area, got none")
+	}
+
+	cellArea := overrides.Area()
+
+	var _ CellAreaer
+
+	if cellArea != nil {
+		cret = (*C.GtkCellArea)(unsafe.Pointer(coreglib.InternObject(cellArea).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_CellLayoutIface_get_cells
+func _gotk4_gtk4_CellLayoutIface_get_cells(arg0 *C.GtkCellLayout) (cret *C.GList) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.Cells == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.Cells, got none")
+	}
+
+	list := overrides.Cells()
+
+	var _ []CellRendererer
+
+	for i := len(list) - 1; i >= 0; i-- {
+		src := list[i]
+		var dst *C.GtkCellRenderer // out
+		dst = (*C.GtkCellRenderer)(unsafe.Pointer(coreglib.InternObject(src).Native()))
+		cret = C.g_list_prepend(cret, C.gpointer(unsafe.Pointer(dst)))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_CellLayoutIface_pack_end
+func _gotk4_gtk4_CellLayoutIface_pack_end(arg0 *C.GtkCellLayout, arg1 *C.GtkCellRenderer, arg2 C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.PackEnd == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.PackEnd, got none")
+	}
+
+	var _cell CellRendererer // out
+	var _expand bool         // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gtk.CellRendererer is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(CellRendererer)
+			return ok
+		})
+		rv, ok := casted.(CellRendererer)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gtk.CellRendererer")
+		}
+		_cell = rv
+	}
+	if arg2 != 0 {
+		_expand = true
+	}
+
+	overrides.PackEnd(_cell, _expand)
+}
+
+//export _gotk4_gtk4_CellLayoutIface_pack_start
+func _gotk4_gtk4_CellLayoutIface_pack_start(arg0 *C.GtkCellLayout, arg1 *C.GtkCellRenderer, arg2 C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.PackStart == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.PackStart, got none")
+	}
+
+	var _cell CellRendererer // out
+	var _expand bool         // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gtk.CellRendererer is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(CellRendererer)
+			return ok
+		})
+		rv, ok := casted.(CellRendererer)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gtk.CellRendererer")
+		}
+		_cell = rv
+	}
+	if arg2 != 0 {
+		_expand = true
+	}
+
+	overrides.PackStart(_cell, _expand)
+}
+
+//export _gotk4_gtk4_CellLayoutIface_reorder
+func _gotk4_gtk4_CellLayoutIface_reorder(arg0 *C.GtkCellLayout, arg1 *C.GtkCellRenderer, arg2 C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[CellLayoutOverrides](instance0)
+	if overrides.Reorder == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellLayoutOverrides.Reorder, got none")
+	}
+
+	var _cell CellRendererer // out
+	var _position int        // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gtk.CellRendererer is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(CellRendererer)
+			return ok
+		})
+		rv, ok := casted.(CellRendererer)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gtk.CellRendererer")
+		}
+		_cell = rv
+	}
+	_position = int(arg2)
+
+	overrides.Reorder(_cell, _position)
+}
+
+//export _gotk4_gtk4_ColorChooserInterface_add_palette
+func _gotk4_gtk4_ColorChooserInterface_add_palette(arg0 *C.GtkColorChooser, arg1 C.GtkOrientation, arg2 C.int, arg3 C.int, arg4 *C.GdkRGBA) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ColorChooserOverrides](instance0)
+	if overrides.AddPalette == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ColorChooserOverrides.AddPalette, got none")
+	}
+
+	var _orientation Orientation // out
+	var _colorsPerLine int       // out
+	var _colors []gdk.RGBA       // out
+
+	_orientation = Orientation(arg1)
+	_colorsPerLine = int(arg2)
+	if arg4 != nil {
+		{
+			src := unsafe.Slice((*C.GdkRGBA)(arg4), arg3)
+			_colors = make([]gdk.RGBA, arg3)
+			for i := 0; i < int(arg3); i++ {
+				_colors[i] = *(*gdk.RGBA)(gextras.NewStructNative(unsafe.Pointer((&src[i]))))
+			}
+		}
+	}
+
+	overrides.AddPalette(_orientation, _colorsPerLine, _colors)
+}
+
+//export _gotk4_gtk4_ColorChooserInterface_color_activated
+func _gotk4_gtk4_ColorChooserInterface_color_activated(arg0 *C.GtkColorChooser, arg1 *C.GdkRGBA) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ColorChooserOverrides](instance0)
+	if overrides.ColorActivated == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ColorChooserOverrides.ColorActivated, got none")
+	}
+
+	var _color *gdk.RGBA // out
+
+	_color = (*gdk.RGBA)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	overrides.ColorActivated(_color)
+}
+
+//export _gotk4_gtk4_ColorChooserInterface_get_rgba
+func _gotk4_gtk4_ColorChooserInterface_get_rgba(arg0 *C.GtkColorChooser, arg1 *C.GdkRGBA) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ColorChooserOverrides](instance0)
+	if overrides.RGBA == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ColorChooserOverrides.RGBA, got none")
+	}
+
+	color := overrides.RGBA()
+
+	var _ *gdk.RGBA
+
+	*arg1 = *(*C.GdkRGBA)(gextras.StructNative(unsafe.Pointer(color)))
+}
+
+//export _gotk4_gtk4_ColorChooserInterface_set_rgba
+func _gotk4_gtk4_ColorChooserInterface_set_rgba(arg0 *C.GtkColorChooser, arg1 *C.GdkRGBA) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ColorChooserOverrides](instance0)
+	if overrides.SetRGBA == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ColorChooserOverrides.SetRGBA, got none")
+	}
+
+	var _color *gdk.RGBA // out
+
+	_color = (*gdk.RGBA)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	overrides.SetRGBA(_color)
+}
+
 //export _gotk4_gtk4_ColorChooser_ConnectColorActivated
 func _gotk4_gtk4_ColorChooser_ConnectColorActivated(arg0 C.gpointer, arg1 *C.GdkRGBA, arg2 C.guintptr) {
 	var f func(color *gdk.RGBA)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1407,13 +2460,101 @@ func _gotk4_gtk4_ColorChooser_ConnectColorActivated(arg0 C.gpointer, arg1 *C.Gdk
 	f(_color)
 }
 
+//export _gotk4_gtk4_EditableInterface_changed
+func _gotk4_gtk4_EditableInterface_changed(arg0 *C.GtkEditable) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[EditableTextWidgetOverrides](instance0)
+	if overrides.Changed == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EditableTextWidgetOverrides.Changed, got none")
+	}
+
+	overrides.Changed()
+}
+
+//export _gotk4_gtk4_EditableInterface_delete_text
+func _gotk4_gtk4_EditableInterface_delete_text(arg0 *C.GtkEditable, arg1 C.int, arg2 C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[EditableTextWidgetOverrides](instance0)
+	if overrides.DeleteText == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EditableTextWidgetOverrides.DeleteText, got none")
+	}
+
+	var _startPos int // out
+	var _endPos int   // out
+
+	_startPos = int(arg1)
+	_endPos = int(arg2)
+
+	overrides.DeleteText(_startPos, _endPos)
+}
+
+//export _gotk4_gtk4_EditableInterface_get_delegate
+func _gotk4_gtk4_EditableInterface_get_delegate(arg0 *C.GtkEditable) (cret *C.GtkEditable) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[EditableTextWidgetOverrides](instance0)
+	if overrides.Delegate == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EditableTextWidgetOverrides.Delegate, got none")
+	}
+
+	ret := overrides.Delegate()
+
+	var _ *EditableTextWidget
+
+	if ret != nil {
+		cret = (*C.GtkEditable)(unsafe.Pointer(coreglib.InternObject(ret).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_EditableInterface_get_selection_bounds
+func _gotk4_gtk4_EditableInterface_get_selection_bounds(arg0 *C.GtkEditable, arg1 *C.int, arg2 *C.int) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[EditableTextWidgetOverrides](instance0)
+	if overrides.SelectionBounds == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EditableTextWidgetOverrides.SelectionBounds, got none")
+	}
+
+	startPos, endPos, ok := overrides.SelectionBounds()
+
+	var _ int
+	var _ int
+	var _ bool
+
+	*arg1 = C.int(startPos)
+	*arg2 = C.int(endPos)
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_EditableInterface_get_text
+func _gotk4_gtk4_EditableInterface_get_text(arg0 *C.GtkEditable) (cret *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[EditableTextWidgetOverrides](instance0)
+	if overrides.Text == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EditableTextWidgetOverrides.Text, got none")
+	}
+
+	utf8 := overrides.Text()
+
+	var _ string
+
+	cret = (*C.char)(unsafe.Pointer(C.CString(utf8)))
+	defer C.free(unsafe.Pointer(cret))
+
+	return cret
+}
+
 //export _gotk4_gtk4_EditableTextWidget_ConnectChanged
 func _gotk4_gtk4_EditableTextWidget_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	var f func()
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1429,7 +2570,7 @@ func _gotk4_gtk4_EditableTextWidget_ConnectDeleteText(arg0 C.gpointer, arg1 C.gi
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1445,13 +2586,133 @@ func _gotk4_gtk4_EditableTextWidget_ConnectDeleteText(arg0 C.gpointer, arg1 C.gi
 	f(_startPos, _endPos)
 }
 
+//export _gotk4_gtk4_FontChooserIface_font_activated
+func _gotk4_gtk4_FontChooserIface_font_activated(arg0 *C.GtkFontChooser, arg1 *C.char) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[FontChooserOverrides](instance0)
+	if overrides.FontActivated == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FontChooserOverrides.FontActivated, got none")
+	}
+
+	var _fontname string // out
+
+	_fontname = C.GoString((*C.gchar)(unsafe.Pointer(arg1)))
+
+	overrides.FontActivated(_fontname)
+}
+
+//export _gotk4_gtk4_FontChooserIface_get_font_face
+func _gotk4_gtk4_FontChooserIface_get_font_face(arg0 *C.GtkFontChooser) (cret *C.PangoFontFace) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[FontChooserOverrides](instance0)
+	if overrides.FontFace == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FontChooserOverrides.FontFace, got none")
+	}
+
+	fontFace := overrides.FontFace()
+
+	var _ pango.FontFacer
+
+	if fontFace != nil {
+		cret = (*C.PangoFontFace)(unsafe.Pointer(coreglib.InternObject(fontFace).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_FontChooserIface_get_font_family
+func _gotk4_gtk4_FontChooserIface_get_font_family(arg0 *C.GtkFontChooser) (cret *C.PangoFontFamily) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[FontChooserOverrides](instance0)
+	if overrides.FontFamily == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FontChooserOverrides.FontFamily, got none")
+	}
+
+	fontFamily := overrides.FontFamily()
+
+	var _ pango.FontFamilier
+
+	if fontFamily != nil {
+		cret = (*C.PangoFontFamily)(unsafe.Pointer(coreglib.InternObject(fontFamily).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_FontChooserIface_get_font_map
+func _gotk4_gtk4_FontChooserIface_get_font_map(arg0 *C.GtkFontChooser) (cret *C.PangoFontMap) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[FontChooserOverrides](instance0)
+	if overrides.FontMap == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FontChooserOverrides.FontMap, got none")
+	}
+
+	fontMap := overrides.FontMap()
+
+	var _ pango.FontMapper
+
+	if fontMap != nil {
+		cret = (*C.PangoFontMap)(unsafe.Pointer(coreglib.InternObject(fontMap).Native()))
+		C.g_object_ref(C.gpointer(coreglib.InternObject(fontMap).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_FontChooserIface_get_font_size
+func _gotk4_gtk4_FontChooserIface_get_font_size(arg0 *C.GtkFontChooser) (cret C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[FontChooserOverrides](instance0)
+	if overrides.FontSize == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FontChooserOverrides.FontSize, got none")
+	}
+
+	gint := overrides.FontSize()
+
+	var _ int
+
+	cret = C.int(gint)
+
+	return cret
+}
+
+//export _gotk4_gtk4_FontChooserIface_set_font_map
+func _gotk4_gtk4_FontChooserIface_set_font_map(arg0 *C.GtkFontChooser, arg1 *C.PangoFontMap) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[FontChooserOverrides](instance0)
+	if overrides.SetFontMap == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FontChooserOverrides.SetFontMap, got none")
+	}
+
+	var _fontmap pango.FontMapper // out
+
+	if arg1 != nil {
+		{
+			objptr := unsafe.Pointer(arg1)
+
+			object := coreglib.Take(objptr)
+			casted := object.WalkCast(func(obj coreglib.Objector) bool {
+				_, ok := obj.(pango.FontMapper)
+				return ok
+			})
+			rv, ok := casted.(pango.FontMapper)
+			if !ok {
+				panic("no marshaler for " + object.TypeFromInstance().String() + " matching pango.FontMapper")
+			}
+			_fontmap = rv
+		}
+	}
+
+	overrides.SetFontMap(_fontmap)
+}
+
 //export _gotk4_gtk4_FontChooser_ConnectFontActivated
 func _gotk4_gtk4_FontChooser_ConnectFontActivated(arg0 C.gpointer, arg1 *C.gchar, arg2 C.guintptr) {
 	var f func(fontname string)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1465,13 +2726,94 @@ func _gotk4_gtk4_FontChooser_ConnectFontActivated(arg0 C.gpointer, arg1 *C.gchar
 	f(_fontname)
 }
 
+//export _gotk4_gtk4_PrintOperationPreviewIface_end_preview
+func _gotk4_gtk4_PrintOperationPreviewIface_end_preview(arg0 *C.GtkPrintOperationPreview) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PrintOperationPreviewOverrides](instance0)
+	if overrides.EndPreview == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationPreviewOverrides.EndPreview, got none")
+	}
+
+	overrides.EndPreview()
+}
+
+//export _gotk4_gtk4_PrintOperationPreviewIface_got_page_size
+func _gotk4_gtk4_PrintOperationPreviewIface_got_page_size(arg0 *C.GtkPrintOperationPreview, arg1 *C.GtkPrintContext, arg2 *C.GtkPageSetup) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PrintOperationPreviewOverrides](instance0)
+	if overrides.GotPageSize == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationPreviewOverrides.GotPageSize, got none")
+	}
+
+	var _context *PrintContext // out
+	var _pageSetup *PageSetup  // out
+
+	_context = wrapPrintContext(coreglib.Take(unsafe.Pointer(arg1)))
+	_pageSetup = wrapPageSetup(coreglib.Take(unsafe.Pointer(arg2)))
+
+	overrides.GotPageSize(_context, _pageSetup)
+}
+
+//export _gotk4_gtk4_PrintOperationPreviewIface_is_selected
+func _gotk4_gtk4_PrintOperationPreviewIface_is_selected(arg0 *C.GtkPrintOperationPreview, arg1 C.int) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PrintOperationPreviewOverrides](instance0)
+	if overrides.IsSelected == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationPreviewOverrides.IsSelected, got none")
+	}
+
+	var _pageNr int // out
+
+	_pageNr = int(arg1)
+
+	ok := overrides.IsSelected(_pageNr)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_PrintOperationPreviewIface_ready
+func _gotk4_gtk4_PrintOperationPreviewIface_ready(arg0 *C.GtkPrintOperationPreview, arg1 *C.GtkPrintContext) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PrintOperationPreviewOverrides](instance0)
+	if overrides.Ready == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationPreviewOverrides.Ready, got none")
+	}
+
+	var _context *PrintContext // out
+
+	_context = wrapPrintContext(coreglib.Take(unsafe.Pointer(arg1)))
+
+	overrides.Ready(_context)
+}
+
+//export _gotk4_gtk4_PrintOperationPreviewIface_render_page
+func _gotk4_gtk4_PrintOperationPreviewIface_render_page(arg0 *C.GtkPrintOperationPreview, arg1 C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PrintOperationPreviewOverrides](instance0)
+	if overrides.RenderPage == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationPreviewOverrides.RenderPage, got none")
+	}
+
+	var _pageNr int // out
+
+	_pageNr = int(arg1)
+
+	overrides.RenderPage(_pageNr)
+}
+
 //export _gotk4_gtk4_PrintOperationPreview_ConnectGotPageSize
 func _gotk4_gtk4_PrintOperationPreview_ConnectGotPageSize(arg0 C.gpointer, arg1 *C.GtkPrintContext, arg2 *C.GtkPageSetup, arg3 C.guintptr) {
 	var f func(context *PrintContext, pageSetup *PageSetup)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1493,7 +2835,7 @@ func _gotk4_gtk4_PrintOperationPreview_ConnectReady(arg0 C.gpointer, arg1 *C.Gtk
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1507,13 +2849,55 @@ func _gotk4_gtk4_PrintOperationPreview_ConnectReady(arg0 C.gpointer, arg1 *C.Gtk
 	f(_context)
 }
 
+//export _gotk4_gtk4_ScrollableInterface_get_border
+func _gotk4_gtk4_ScrollableInterface_get_border(arg0 *C.GtkScrollable, arg1 *C.GtkBorder) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ScrollableOverrides](instance0)
+	if overrides.Border == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ScrollableOverrides.Border, got none")
+	}
+
+	border, ok := overrides.Border()
+
+	var _ *Border
+	var _ bool
+
+	*arg1 = *(*C.GtkBorder)(gextras.StructNative(unsafe.Pointer(border)))
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SectionModelInterface_get_section
+func _gotk4_gtk4_SectionModelInterface_get_section(arg0 *C.GtkSectionModel, arg1 C.guint, arg2 *C.guint, arg3 *C.guint) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SectionModelOverrides](instance0)
+	if overrides.Section == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SectionModelOverrides.Section, got none")
+	}
+
+	var _position uint // out
+
+	_position = uint(arg1)
+
+	outStart, outEnd := overrides.Section(_position)
+
+	var _ uint
+	var _ uint
+
+	*arg2 = C.guint(outStart)
+	*arg3 = C.guint(outEnd)
+}
+
 //export _gotk4_gtk4_SectionModel_ConnectSectionsChanged
 func _gotk4_gtk4_SectionModel_ConnectSectionsChanged(arg0 C.gpointer, arg1 C.guint, arg2 C.guint, arg3 C.guintptr) {
 	var f func(position, nItems uint)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1527,6 +2911,233 @@ func _gotk4_gtk4_SectionModel_ConnectSectionsChanged(arg0 C.gpointer, arg1 C.gui
 	_nItems = uint(arg2)
 
 	f(_position, _nItems)
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_get_selection_in_range
+func _gotk4_gtk4_SelectionModelInterface_get_selection_in_range(arg0 *C.GtkSelectionModel, arg1 C.guint, arg2 C.guint) (cret *C.GtkBitset) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.SelectionInRange == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.SelectionInRange, got none")
+	}
+
+	var _position uint // out
+	var _nItems uint   // out
+
+	_position = uint(arg1)
+	_nItems = uint(arg2)
+
+	bitset := overrides.SelectionInRange(_position, _nItems)
+
+	var _ *Bitset
+
+	cret = (*C.GtkBitset)(gextras.StructNative(unsafe.Pointer(bitset)))
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_is_selected
+func _gotk4_gtk4_SelectionModelInterface_is_selected(arg0 *C.GtkSelectionModel, arg1 C.guint) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.IsSelected == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.IsSelected, got none")
+	}
+
+	var _position uint // out
+
+	_position = uint(arg1)
+
+	ok := overrides.IsSelected(_position)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_select_all
+func _gotk4_gtk4_SelectionModelInterface_select_all(arg0 *C.GtkSelectionModel) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.SelectAll == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.SelectAll, got none")
+	}
+
+	ok := overrides.SelectAll()
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_select_item
+func _gotk4_gtk4_SelectionModelInterface_select_item(arg0 *C.GtkSelectionModel, arg1 C.guint, arg2 C.gboolean) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.SelectItem == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.SelectItem, got none")
+	}
+
+	var _position uint     // out
+	var _unselectRest bool // out
+
+	_position = uint(arg1)
+	if arg2 != 0 {
+		_unselectRest = true
+	}
+
+	ok := overrides.SelectItem(_position, _unselectRest)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_select_range
+func _gotk4_gtk4_SelectionModelInterface_select_range(arg0 *C.GtkSelectionModel, arg1 C.guint, arg2 C.guint, arg3 C.gboolean) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.SelectRange == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.SelectRange, got none")
+	}
+
+	var _position uint     // out
+	var _nItems uint       // out
+	var _unselectRest bool // out
+
+	_position = uint(arg1)
+	_nItems = uint(arg2)
+	if arg3 != 0 {
+		_unselectRest = true
+	}
+
+	ok := overrides.SelectRange(_position, _nItems, _unselectRest)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_set_selection
+func _gotk4_gtk4_SelectionModelInterface_set_selection(arg0 *C.GtkSelectionModel, arg1 *C.GtkBitset, arg2 *C.GtkBitset) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.SetSelection == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.SetSelection, got none")
+	}
+
+	var _selected *Bitset // out
+	var _mask *Bitset     // out
+
+	_selected = (*Bitset)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	C.gtk_bitset_ref(arg1)
+	runtime.SetFinalizer(
+		gextras.StructIntern(unsafe.Pointer(_selected)),
+		func(intern *struct{ C unsafe.Pointer }) {
+			C.gtk_bitset_unref((*C.GtkBitset)(intern.C))
+		},
+	)
+	_mask = (*Bitset)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+	C.gtk_bitset_ref(arg2)
+	runtime.SetFinalizer(
+		gextras.StructIntern(unsafe.Pointer(_mask)),
+		func(intern *struct{ C unsafe.Pointer }) {
+			C.gtk_bitset_unref((*C.GtkBitset)(intern.C))
+		},
+	)
+
+	ok := overrides.SetSelection(_selected, _mask)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_unselect_all
+func _gotk4_gtk4_SelectionModelInterface_unselect_all(arg0 *C.GtkSelectionModel) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.UnselectAll == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.UnselectAll, got none")
+	}
+
+	ok := overrides.UnselectAll()
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_unselect_item
+func _gotk4_gtk4_SelectionModelInterface_unselect_item(arg0 *C.GtkSelectionModel, arg1 C.guint) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.UnselectItem == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.UnselectItem, got none")
+	}
+
+	var _position uint // out
+
+	_position = uint(arg1)
+
+	ok := overrides.UnselectItem(_position)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_SelectionModelInterface_unselect_range
+func _gotk4_gtk4_SelectionModelInterface_unselect_range(arg0 *C.GtkSelectionModel, arg1 C.guint, arg2 C.guint) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SelectionModelOverrides](instance0)
+	if overrides.UnselectRange == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SelectionModelOverrides.UnselectRange, got none")
+	}
+
+	var _position uint // out
+	var _nItems uint   // out
+
+	_position = uint(arg1)
+	_nItems = uint(arg2)
+
+	ok := overrides.UnselectRange(_position, _nItems)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
 }
 
 //export _gotk4_gtk4_SelectionModel_ConnectSelectionChanged
@@ -1535,7 +3146,7 @@ func _gotk4_gtk4_SelectionModel_ConnectSelectionChanged(arg0 C.gpointer, arg1 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1551,13 +3162,43 @@ func _gotk4_gtk4_SelectionModel_ConnectSelectionChanged(arg0 C.gpointer, arg1 C.
 	f(_position, _nItems)
 }
 
+//export _gotk4_gtk4_ShortcutManagerInterface_add_controller
+func _gotk4_gtk4_ShortcutManagerInterface_add_controller(arg0 *C.GtkShortcutManager, arg1 *C.GtkShortcutController) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ShortcutManagerOverrides](instance0)
+	if overrides.AddController == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ShortcutManagerOverrides.AddController, got none")
+	}
+
+	var _controller *ShortcutController // out
+
+	_controller = wrapShortcutController(coreglib.Take(unsafe.Pointer(arg1)))
+
+	overrides.AddController(_controller)
+}
+
+//export _gotk4_gtk4_ShortcutManagerInterface_remove_controller
+func _gotk4_gtk4_ShortcutManagerInterface_remove_controller(arg0 *C.GtkShortcutManager, arg1 *C.GtkShortcutController) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[ShortcutManagerOverrides](instance0)
+	if overrides.RemoveController == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ShortcutManagerOverrides.RemoveController, got none")
+	}
+
+	var _controller *ShortcutController // out
+
+	_controller = wrapShortcutController(coreglib.Take(unsafe.Pointer(arg1)))
+
+	overrides.RemoveController(_controller)
+}
+
 //export _gotk4_gtk4_StyleProvider_ConnectGTKPrivateChanged
 func _gotk4_gtk4_StyleProvider_ConnectGTKPrivateChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	var f func()
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1567,13 +3208,613 @@ func _gotk4_gtk4_StyleProvider_ConnectGTKPrivateChanged(arg0 C.gpointer, arg1 C.
 	f()
 }
 
+//export _gotk4_gtk4_SymbolicPaintableInterface_snapshot_symbolic
+func _gotk4_gtk4_SymbolicPaintableInterface_snapshot_symbolic(arg0 *C.GtkSymbolicPaintable, arg1 *C.GdkSnapshot, arg2 C.double, arg3 C.double, arg4 *C.GdkRGBA, arg5 C.gsize) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SymbolicPaintableOverrides](instance0)
+	if overrides.SnapshotSymbolic == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SymbolicPaintableOverrides.SnapshotSymbolic, got none")
+	}
+
+	var _snapshot gdk.Snapshotter // out
+	var _width float64            // out
+	var _height float64           // out
+	var _colors []gdk.RGBA        // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gdk.Snapshotter is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(gdk.Snapshotter)
+			return ok
+		})
+		rv, ok := casted.(gdk.Snapshotter)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gdk.Snapshotter")
+		}
+		_snapshot = rv
+	}
+	_width = float64(arg2)
+	_height = float64(arg3)
+	{
+		src := unsafe.Slice((*C.GdkRGBA)(arg4), arg5)
+		_colors = make([]gdk.RGBA, arg5)
+		for i := 0; i < int(arg5); i++ {
+			_colors[i] = *(*gdk.RGBA)(gextras.NewStructNative(unsafe.Pointer((&src[i]))))
+		}
+	}
+
+	overrides.SnapshotSymbolic(_snapshot, _width, _height, _colors)
+}
+
+//export _gotk4_gtk4_SymbolicPaintableInterface_snapshot_with_weight
+func _gotk4_gtk4_SymbolicPaintableInterface_snapshot_with_weight(arg0 *C.GtkSymbolicPaintable, arg1 *C.GdkSnapshot, arg2 C.double, arg3 C.double, arg4 *C.GdkRGBA, arg5 C.gsize, arg6 C.double) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[SymbolicPaintableOverrides](instance0)
+	if overrides.SnapshotWithWeight == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SymbolicPaintableOverrides.SnapshotWithWeight, got none")
+	}
+
+	var _snapshot gdk.Snapshotter // out
+	var _width float64            // out
+	var _height float64           // out
+	var _colors []gdk.RGBA        // out
+	var _weight float64           // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gdk.Snapshotter is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(gdk.Snapshotter)
+			return ok
+		})
+		rv, ok := casted.(gdk.Snapshotter)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gdk.Snapshotter")
+		}
+		_snapshot = rv
+	}
+	_width = float64(arg2)
+	_height = float64(arg3)
+	{
+		src := unsafe.Slice((*C.GdkRGBA)(arg4), arg5)
+		_colors = make([]gdk.RGBA, arg5)
+		for i := 0; i < int(arg5); i++ {
+			_colors[i] = *(*gdk.RGBA)(gextras.NewStructNative(unsafe.Pointer((&src[i]))))
+		}
+	}
+	_weight = float64(arg6)
+
+	overrides.SnapshotWithWeight(_snapshot, _width, _height, _colors, _weight)
+}
+
+//export _gotk4_gtk4_TreeDragDestIface_drag_data_received
+func _gotk4_gtk4_TreeDragDestIface_drag_data_received(arg0 *C.GtkTreeDragDest, arg1 *C.GtkTreePath, arg2 *C.GValue) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeDragDestOverrides](instance0)
+	if overrides.DragDataReceived == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeDragDestOverrides.DragDataReceived, got none")
+	}
+
+	var _dest *TreePath        // out
+	var _value *coreglib.Value // out
+
+	_dest = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	_value = coreglib.ValueFromNative(unsafe.Pointer(arg2))
+
+	ok := overrides.DragDataReceived(_dest, _value)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeDragDestIface_row_drop_possible
+func _gotk4_gtk4_TreeDragDestIface_row_drop_possible(arg0 *C.GtkTreeDragDest, arg1 *C.GtkTreePath, arg2 *C.GValue) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeDragDestOverrides](instance0)
+	if overrides.RowDropPossible == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeDragDestOverrides.RowDropPossible, got none")
+	}
+
+	var _destPath *TreePath    // out
+	var _value *coreglib.Value // out
+
+	_destPath = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	_value = coreglib.ValueFromNative(unsafe.Pointer(arg2))
+
+	ok := overrides.RowDropPossible(_destPath, _value)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeDragSourceIface_drag_data_delete
+func _gotk4_gtk4_TreeDragSourceIface_drag_data_delete(arg0 *C.GtkTreeDragSource, arg1 *C.GtkTreePath) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeDragSourceOverrides](instance0)
+	if overrides.DragDataDelete == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeDragSourceOverrides.DragDataDelete, got none")
+	}
+
+	var _path *TreePath // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	ok := overrides.DragDataDelete(_path)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeDragSourceIface_drag_data_get
+func _gotk4_gtk4_TreeDragSourceIface_drag_data_get(arg0 *C.GtkTreeDragSource, arg1 *C.GtkTreePath) (cret *C.GdkContentProvider) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeDragSourceOverrides](instance0)
+	if overrides.DragDataGet == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeDragSourceOverrides.DragDataGet, got none")
+	}
+
+	var _path *TreePath // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	contentProvider := overrides.DragDataGet(_path)
+
+	var _ *gdk.ContentProvider
+
+	if contentProvider != nil {
+		cret = (*C.GdkContentProvider)(unsafe.Pointer(coreglib.InternObject(contentProvider).Native()))
+		C.g_object_ref(C.gpointer(coreglib.InternObject(contentProvider).Native()))
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeDragSourceIface_row_draggable
+func _gotk4_gtk4_TreeDragSourceIface_row_draggable(arg0 *C.GtkTreeDragSource, arg1 *C.GtkTreePath) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeDragSourceOverrides](instance0)
+	if overrides.RowDraggable == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeDragSourceOverrides.RowDraggable, got none")
+	}
+
+	var _path *TreePath // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	ok := overrides.RowDraggable(_path)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_get_column_type
+func _gotk4_gtk4_TreeModelIface_get_column_type(arg0 *C.GtkTreeModel, arg1 C.int) (cret C.GType) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.ColumnType == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.ColumnType, got none")
+	}
+
+	var _index_ int // out
+
+	_index_ = int(arg1)
+
+	gType := overrides.ColumnType(_index_)
+
+	var _ coreglib.Type
+
+	cret = C.GType(gType)
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_get_flags
+func _gotk4_gtk4_TreeModelIface_get_flags(arg0 *C.GtkTreeModel) (cret C.GtkTreeModelFlags) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.Flags == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.Flags, got none")
+	}
+
+	treeModelFlags := overrides.Flags()
+
+	var _ TreeModelFlags
+
+	cret = C.GtkTreeModelFlags(treeModelFlags)
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_get_iter
+func _gotk4_gtk4_TreeModelIface_get_iter(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter, arg2 *C.GtkTreePath) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.Iter == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.Iter, got none")
+	}
+
+	var _path *TreePath // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+
+	iter, ok := overrides.Iter(_path)
+
+	var _ *TreeIter
+	var _ bool
+
+	*arg1 = *(*C.GtkTreeIter)(gextras.StructNative(unsafe.Pointer(iter)))
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_get_n_columns
+func _gotk4_gtk4_TreeModelIface_get_n_columns(arg0 *C.GtkTreeModel) (cret C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.NColumns == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.NColumns, got none")
+	}
+
+	gint := overrides.NColumns()
+
+	var _ int
+
+	cret = C.int(gint)
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_get_path
+func _gotk4_gtk4_TreeModelIface_get_path(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) (cret *C.GtkTreePath) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.Path == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.Path, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	treePath := overrides.Path(_iter)
+
+	var _ *TreePath
+
+	cret = (*C.GtkTreePath)(gextras.StructNative(unsafe.Pointer(treePath)))
+	runtime.SetFinalizer(gextras.StructIntern(unsafe.Pointer(treePath)), nil)
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_get_value
+func _gotk4_gtk4_TreeModelIface_get_value(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter, arg2 C.int, arg3 *C.GValue) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.Value == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.Value, got none")
+	}
+
+	var _iter *TreeIter // out
+	var _column int     // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	_column = int(arg2)
+
+	value := overrides.Value(_iter, _column)
+
+	var _ coreglib.Value
+
+	*arg3 = *(*C.GValue)(unsafe.Pointer((&value).Native()))
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_children
+func _gotk4_gtk4_TreeModelIface_iter_children(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter, arg2 *C.GtkTreeIter) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterChildren == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterChildren, got none")
+	}
+
+	var _parent *TreeIter // out
+
+	if arg2 != nil {
+		_parent = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+	}
+
+	iter, ok := overrides.IterChildren(_parent)
+
+	var _ *TreeIter
+	var _ bool
+
+	*arg1 = *(*C.GtkTreeIter)(gextras.StructNative(unsafe.Pointer(iter)))
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_has_child
+func _gotk4_gtk4_TreeModelIface_iter_has_child(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterHasChild == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterHasChild, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	ok := overrides.IterHasChild(_iter)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_n_children
+func _gotk4_gtk4_TreeModelIface_iter_n_children(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) (cret C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterNChildren == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterNChildren, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	if arg1 != nil {
+		_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	}
+
+	gint := overrides.IterNChildren(_iter)
+
+	var _ int
+
+	cret = C.int(gint)
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_next
+func _gotk4_gtk4_TreeModelIface_iter_next(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterNext == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterNext, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	ok := overrides.IterNext(_iter)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_nth_child
+func _gotk4_gtk4_TreeModelIface_iter_nth_child(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter, arg2 *C.GtkTreeIter, arg3 C.int) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterNthChild == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterNthChild, got none")
+	}
+
+	var _parent *TreeIter // out
+	var _n int            // out
+
+	if arg2 != nil {
+		_parent = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+	}
+	_n = int(arg3)
+
+	iter, ok := overrides.IterNthChild(_parent, _n)
+
+	var _ *TreeIter
+	var _ bool
+
+	*arg1 = *(*C.GtkTreeIter)(gextras.StructNative(unsafe.Pointer(iter)))
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_parent
+func _gotk4_gtk4_TreeModelIface_iter_parent(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter, arg2 *C.GtkTreeIter) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterParent == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterParent, got none")
+	}
+
+	var _child *TreeIter // out
+
+	_child = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+
+	iter, ok := overrides.IterParent(_child)
+
+	var _ *TreeIter
+	var _ bool
+
+	*arg1 = *(*C.GtkTreeIter)(gextras.StructNative(unsafe.Pointer(iter)))
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_iter_previous
+func _gotk4_gtk4_TreeModelIface_iter_previous(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.IterPrevious == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.IterPrevious, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	ok := overrides.IterPrevious(_iter)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeModelIface_ref_node
+func _gotk4_gtk4_TreeModelIface_ref_node(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.RefNode == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.RefNode, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	overrides.RefNode(_iter)
+}
+
+//export _gotk4_gtk4_TreeModelIface_row_changed
+func _gotk4_gtk4_TreeModelIface_row_changed(arg0 *C.GtkTreeModel, arg1 *C.GtkTreePath, arg2 *C.GtkTreeIter) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.RowChanged == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.RowChanged, got none")
+	}
+
+	var _path *TreePath // out
+	var _iter *TreeIter // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+
+	overrides.RowChanged(_path, _iter)
+}
+
+//export _gotk4_gtk4_TreeModelIface_row_deleted
+func _gotk4_gtk4_TreeModelIface_row_deleted(arg0 *C.GtkTreeModel, arg1 *C.GtkTreePath) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.RowDeleted == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.RowDeleted, got none")
+	}
+
+	var _path *TreePath // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	overrides.RowDeleted(_path)
+}
+
+//export _gotk4_gtk4_TreeModelIface_row_has_child_toggled
+func _gotk4_gtk4_TreeModelIface_row_has_child_toggled(arg0 *C.GtkTreeModel, arg1 *C.GtkTreePath, arg2 *C.GtkTreeIter) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.RowHasChildToggled == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.RowHasChildToggled, got none")
+	}
+
+	var _path *TreePath // out
+	var _iter *TreeIter // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+
+	overrides.RowHasChildToggled(_path, _iter)
+}
+
+//export _gotk4_gtk4_TreeModelIface_row_inserted
+func _gotk4_gtk4_TreeModelIface_row_inserted(arg0 *C.GtkTreeModel, arg1 *C.GtkTreePath, arg2 *C.GtkTreeIter) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.RowInserted == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.RowInserted, got none")
+	}
+
+	var _path *TreePath // out
+	var _iter *TreeIter // out
+
+	_path = (*TreePath)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg2)))
+
+	overrides.RowInserted(_path, _iter)
+}
+
+//export _gotk4_gtk4_TreeModelIface_unref_node
+func _gotk4_gtk4_TreeModelIface_unref_node(arg0 *C.GtkTreeModel, arg1 *C.GtkTreeIter) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeModelOverrides](instance0)
+	if overrides.UnrefNode == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelOverrides.UnrefNode, got none")
+	}
+
+	var _iter *TreeIter // out
+
+	_iter = (*TreeIter)(gextras.NewStructNative(unsafe.Pointer(arg1)))
+
+	overrides.UnrefNode(_iter)
+}
+
 //export _gotk4_gtk4_TreeModel_ConnectRowChanged
 func _gotk4_gtk4_TreeModel_ConnectRowChanged(arg0 C.gpointer, arg1 *C.GtkTreePath, arg2 *C.GtkTreeIter, arg3 C.guintptr) {
 	var f func(path *TreePath, iter *TreeIter)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1595,7 +3836,7 @@ func _gotk4_gtk4_TreeModel_ConnectRowDeleted(arg0 C.gpointer, arg1 *C.GtkTreePat
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1615,7 +3856,7 @@ func _gotk4_gtk4_TreeModel_ConnectRowHasChildToggled(arg0 C.gpointer, arg1 *C.Gt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1637,7 +3878,7 @@ func _gotk4_gtk4_TreeModel_ConnectRowInserted(arg0 C.gpointer, arg1 *C.GtkTreePa
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1659,7 +3900,7 @@ func _gotk4_gtk4_TreeModel_ConnectRowsReordered(arg0 C.gpointer, arg1 *C.GtkTree
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1677,13 +3918,83 @@ func _gotk4_gtk4_TreeModel_ConnectRowsReordered(arg0 C.gpointer, arg1 *C.GtkTree
 	f(_path, _iter, _newOrder)
 }
 
+//export _gotk4_gtk4_TreeSortableIface_get_sort_column_id
+func _gotk4_gtk4_TreeSortableIface_get_sort_column_id(arg0 *C.GtkTreeSortable, arg1 *C.int, arg2 *C.GtkSortType) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeSortableOverrides](instance0)
+	if overrides.SortColumnID == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeSortableOverrides.SortColumnID, got none")
+	}
+
+	sortColumnId, order, ok := overrides.SortColumnID()
+
+	var _ int
+	var _ SortType
+	var _ bool
+
+	*arg1 = C.int(sortColumnId)
+	*arg2 = C.GtkSortType(order)
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeSortableIface_has_default_sort_func
+func _gotk4_gtk4_TreeSortableIface_has_default_sort_func(arg0 *C.GtkTreeSortable) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeSortableOverrides](instance0)
+	if overrides.HasDefaultSortFunc == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeSortableOverrides.HasDefaultSortFunc, got none")
+	}
+
+	ok := overrides.HasDefaultSortFunc()
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
+//export _gotk4_gtk4_TreeSortableIface_set_sort_column_id
+func _gotk4_gtk4_TreeSortableIface_set_sort_column_id(arg0 *C.GtkTreeSortable, arg1 C.int, arg2 C.GtkSortType) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeSortableOverrides](instance0)
+	if overrides.SetSortColumnID == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeSortableOverrides.SetSortColumnID, got none")
+	}
+
+	var _sortColumnId int // out
+	var _order SortType   // out
+
+	_sortColumnId = int(arg1)
+	_order = SortType(arg2)
+
+	overrides.SetSortColumnID(_sortColumnId, _order)
+}
+
+//export _gotk4_gtk4_TreeSortableIface_sort_column_changed
+func _gotk4_gtk4_TreeSortableIface_sort_column_changed(arg0 *C.GtkTreeSortable) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[TreeSortableOverrides](instance0)
+	if overrides.SortColumnChanged == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeSortableOverrides.SortColumnChanged, got none")
+	}
+
+	overrides.SortColumnChanged()
+}
+
 //export _gotk4_gtk4_TreeSortable_ConnectSortColumnChanged
 func _gotk4_gtk4_TreeSortable_ConnectSortColumnChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	var f func()
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1699,7 +4010,7 @@ func _gotk4_gtk4_ATContext_ConnectStateChange(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1715,7 +4026,7 @@ func _gotk4_gtk4_AboutDialog_ConnectActivateLink(arg0 C.gpointer, arg1 *C.gchar,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1740,7 +4051,7 @@ func _gotk4_gtk4_AboutDialog_ConnectActivateLink(arg0 C.gpointer, arg1 *C.gchar,
 //export _gotk4_gtk4_AdjustmentClass_changed
 func _gotk4_gtk4_AdjustmentClass_changed(arg0 *C.GtkAdjustment) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[AdjustmentOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[AdjustmentOverrides](instance0)
 	if overrides.Changed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AdjustmentOverrides.Changed, got none")
 	}
@@ -1751,7 +4062,7 @@ func _gotk4_gtk4_AdjustmentClass_changed(arg0 *C.GtkAdjustment) {
 //export _gotk4_gtk4_AdjustmentClass_value_changed
 func _gotk4_gtk4_AdjustmentClass_value_changed(arg0 *C.GtkAdjustment) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[AdjustmentOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[AdjustmentOverrides](instance0)
 	if overrides.ValueChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected AdjustmentOverrides.ValueChanged, got none")
 	}
@@ -1765,7 +4076,7 @@ func _gotk4_gtk4_Adjustment_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1781,7 +4092,7 @@ func _gotk4_gtk4_Adjustment_ConnectValueChanged(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1797,7 +4108,7 @@ func _gotk4_gtk4_AppChooserButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1813,7 +4124,7 @@ func _gotk4_gtk4_AppChooserButton_ConnectChanged(arg0 C.gpointer, arg1 C.guintpt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1829,7 +4140,7 @@ func _gotk4_gtk4_AppChooserButton_ConnectCustomItemActivated(arg0 C.gpointer, ar
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1849,7 +4160,7 @@ func _gotk4_gtk4_AppChooserWidget_ConnectApplicationActivated(arg0 C.gpointer, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1885,7 +4196,7 @@ func _gotk4_gtk4_AppChooserWidget_ConnectApplicationSelected(arg0 C.gpointer, ar
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1918,7 +4229,7 @@ func _gotk4_gtk4_AppChooserWidget_ConnectApplicationSelected(arg0 C.gpointer, ar
 //export _gotk4_gtk4_ApplicationClass_window_added
 func _gotk4_gtk4_ApplicationClass_window_added(arg0 *C.GtkApplication, arg1 *C.GtkWindow) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ApplicationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ApplicationOverrides](instance0)
 	if overrides.WindowAdded == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ApplicationOverrides.WindowAdded, got none")
 	}
@@ -1933,7 +4244,7 @@ func _gotk4_gtk4_ApplicationClass_window_added(arg0 *C.GtkApplication, arg1 *C.G
 //export _gotk4_gtk4_ApplicationClass_window_removed
 func _gotk4_gtk4_ApplicationClass_window_removed(arg0 *C.GtkApplication, arg1 *C.GtkWindow) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ApplicationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ApplicationOverrides](instance0)
 	if overrides.WindowRemoved == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ApplicationOverrides.WindowRemoved, got none")
 	}
@@ -1951,7 +4262,7 @@ func _gotk4_gtk4_Application_ConnectQueryEnd(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1967,7 +4278,7 @@ func _gotk4_gtk4_Application_ConnectWindowAdded(arg0 C.gpointer, arg1 *C.GtkWind
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -1987,7 +4298,7 @@ func _gotk4_gtk4_Application_ConnectWindowRemoved(arg0 C.gpointer, arg1 *C.GtkWi
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2007,7 +4318,7 @@ func _gotk4_gtk4_Assistant_ConnectApply(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2023,7 +4334,7 @@ func _gotk4_gtk4_Assistant_ConnectCancel(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2039,7 +4350,7 @@ func _gotk4_gtk4_Assistant_ConnectClose(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2055,7 +4366,7 @@ func _gotk4_gtk4_Assistant_ConnectEscape(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2071,7 +4382,7 @@ func _gotk4_gtk4_Assistant_ConnectPrepare(arg0 C.gpointer, arg1 *C.GtkWidget, ar
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2104,7 +4415,7 @@ func _gotk4_gtk4_Assistant_ConnectPrepare(arg0 C.gpointer, arg1 *C.GtkWidget, ar
 //export _gotk4_gtk4_ButtonClass_activate
 func _gotk4_gtk4_ButtonClass_activate(arg0 *C.GtkButton) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ButtonOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ButtonOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ButtonOverrides.Activate, got none")
 	}
@@ -2115,7 +4426,7 @@ func _gotk4_gtk4_ButtonClass_activate(arg0 *C.GtkButton) {
 //export _gotk4_gtk4_ButtonClass_clicked
 func _gotk4_gtk4_ButtonClass_clicked(arg0 *C.GtkButton) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ButtonOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ButtonOverrides](instance0)
 	if overrides.Clicked == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ButtonOverrides.Clicked, got none")
 	}
@@ -2129,7 +4440,7 @@ func _gotk4_gtk4_Button_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2145,7 +4456,7 @@ func _gotk4_gtk4_Button_ConnectClicked(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2161,7 +4472,7 @@ func _gotk4_gtk4_Calendar_ConnectDaySelected(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2177,7 +4488,7 @@ func _gotk4_gtk4_Calendar_ConnectNextMonth(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2193,7 +4504,7 @@ func _gotk4_gtk4_Calendar_ConnectNextYear(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2209,7 +4520,7 @@ func _gotk4_gtk4_Calendar_ConnectPrevMonth(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2225,7 +4536,7 @@ func _gotk4_gtk4_Calendar_ConnectPrevYear(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2238,7 +4549,7 @@ func _gotk4_gtk4_Calendar_ConnectPrevYear(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_CellAreaClass_activate
 func _gotk4_gtk4_CellAreaClass_activate(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 *C.GdkRectangle, arg4 C.GtkCellRendererState, arg5 C.gboolean) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.Activate, got none")
 	}
@@ -2287,7 +4598,7 @@ func _gotk4_gtk4_CellAreaClass_activate(arg0 *C.GtkCellArea, arg1 *C.GtkCellArea
 //export _gotk4_gtk4_CellAreaClass_add
 func _gotk4_gtk4_CellAreaClass_add(arg0 *C.GtkCellArea, arg1 *C.GtkCellRenderer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.Add == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.Add, got none")
 	}
@@ -2318,7 +4629,7 @@ func _gotk4_gtk4_CellAreaClass_add(arg0 *C.GtkCellArea, arg1 *C.GtkCellRenderer)
 //export _gotk4_gtk4_CellAreaClass_apply_attributes
 func _gotk4_gtk4_CellAreaClass_apply_attributes(arg0 *C.GtkCellArea, arg1 *C.GtkTreeModel, arg2 *C.GtkTreeIter, arg3 C.gboolean, arg4 C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.ApplyAttributes == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.ApplyAttributes, got none")
 	}
@@ -2359,7 +4670,7 @@ func _gotk4_gtk4_CellAreaClass_apply_attributes(arg0 *C.GtkCellArea, arg1 *C.Gtk
 //export _gotk4_gtk4_CellAreaClass_copy_context
 func _gotk4_gtk4_CellAreaClass_copy_context(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext) (cret *C.GtkCellAreaContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.CopyContext == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.CopyContext, got none")
 	}
@@ -2381,7 +4692,7 @@ func _gotk4_gtk4_CellAreaClass_copy_context(arg0 *C.GtkCellArea, arg1 *C.GtkCell
 //export _gotk4_gtk4_CellAreaClass_create_context
 func _gotk4_gtk4_CellAreaClass_create_context(arg0 *C.GtkCellArea) (cret *C.GtkCellAreaContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.CreateContext == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.CreateContext, got none")
 	}
@@ -2399,7 +4710,7 @@ func _gotk4_gtk4_CellAreaClass_create_context(arg0 *C.GtkCellArea) (cret *C.GtkC
 //export _gotk4_gtk4_CellAreaClass_event
 func _gotk4_gtk4_CellAreaClass_event(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 *C.GdkEvent, arg4 *C.GdkRectangle, arg5 C.GtkCellRendererState) (cret C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.Event == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.Event, got none")
 	}
@@ -2460,7 +4771,7 @@ func _gotk4_gtk4_CellAreaClass_event(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaCon
 //export _gotk4_gtk4_CellAreaClass_focus
 func _gotk4_gtk4_CellAreaClass_focus(arg0 *C.GtkCellArea, arg1 C.GtkDirectionType) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.Focus == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.Focus, got none")
 	}
@@ -2483,7 +4794,7 @@ func _gotk4_gtk4_CellAreaClass_focus(arg0 *C.GtkCellArea, arg1 C.GtkDirectionTyp
 //export _gotk4_gtk4_CellAreaClass_get_preferred_height
 func _gotk4_gtk4_CellAreaClass_get_preferred_height(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 *C.int, arg4 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.PreferredHeight == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.PreferredHeight, got none")
 	}
@@ -2522,7 +4833,7 @@ func _gotk4_gtk4_CellAreaClass_get_preferred_height(arg0 *C.GtkCellArea, arg1 *C
 //export _gotk4_gtk4_CellAreaClass_get_preferred_height_for_width
 func _gotk4_gtk4_CellAreaClass_get_preferred_height_for_width(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 C.int, arg4 *C.int, arg5 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.PreferredHeightForWidth == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.PreferredHeightForWidth, got none")
 	}
@@ -2563,7 +4874,7 @@ func _gotk4_gtk4_CellAreaClass_get_preferred_height_for_width(arg0 *C.GtkCellAre
 //export _gotk4_gtk4_CellAreaClass_get_preferred_width
 func _gotk4_gtk4_CellAreaClass_get_preferred_width(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 *C.int, arg4 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.PreferredWidth == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.PreferredWidth, got none")
 	}
@@ -2602,7 +4913,7 @@ func _gotk4_gtk4_CellAreaClass_get_preferred_width(arg0 *C.GtkCellArea, arg1 *C.
 //export _gotk4_gtk4_CellAreaClass_get_preferred_width_for_height
 func _gotk4_gtk4_CellAreaClass_get_preferred_width_for_height(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 C.int, arg4 *C.int, arg5 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.PreferredWidthForHeight == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.PreferredWidthForHeight, got none")
 	}
@@ -2643,7 +4954,7 @@ func _gotk4_gtk4_CellAreaClass_get_preferred_width_for_height(arg0 *C.GtkCellAre
 //export _gotk4_gtk4_CellAreaClass_get_request_mode
 func _gotk4_gtk4_CellAreaClass_get_request_mode(arg0 *C.GtkCellArea) (cret C.GtkSizeRequestMode) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.RequestMode == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.RequestMode, got none")
 	}
@@ -2660,7 +4971,7 @@ func _gotk4_gtk4_CellAreaClass_get_request_mode(arg0 *C.GtkCellArea) (cret C.Gtk
 //export _gotk4_gtk4_CellAreaClass_is_activatable
 func _gotk4_gtk4_CellAreaClass_is_activatable(arg0 *C.GtkCellArea) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.IsActivatable == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.IsActivatable, got none")
 	}
@@ -2679,7 +4990,7 @@ func _gotk4_gtk4_CellAreaClass_is_activatable(arg0 *C.GtkCellArea) (cret C.gbool
 //export _gotk4_gtk4_CellAreaClass_remove
 func _gotk4_gtk4_CellAreaClass_remove(arg0 *C.GtkCellArea, arg1 *C.GtkCellRenderer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.Remove == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.Remove, got none")
 	}
@@ -2710,7 +5021,7 @@ func _gotk4_gtk4_CellAreaClass_remove(arg0 *C.GtkCellArea, arg1 *C.GtkCellRender
 //export _gotk4_gtk4_CellAreaClass_snapshot
 func _gotk4_gtk4_CellAreaClass_snapshot(arg0 *C.GtkCellArea, arg1 *C.GtkCellAreaContext, arg2 *C.GtkWidget, arg3 *C.GtkSnapshot, arg4 *C.GdkRectangle, arg5 *C.GdkRectangle, arg6 C.GtkCellRendererState, arg7 C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaOverrides](instance0)
 	if overrides.Snapshot == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaOverrides.Snapshot, got none")
 	}
@@ -2758,7 +5069,7 @@ func _gotk4_gtk4_CellArea_ConnectAddEditable(arg0 C.gpointer, arg1 *C.GtkCellRen
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2816,7 +5127,7 @@ func _gotk4_gtk4_CellArea_ConnectApplyAttributes(arg0 C.gpointer, arg1 *C.GtkTre
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2862,7 +5173,7 @@ func _gotk4_gtk4_CellArea_ConnectFocusChanged(arg0 C.gpointer, arg1 *C.GtkCellRe
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2900,7 +5211,7 @@ func _gotk4_gtk4_CellArea_ConnectRemoveEditable(arg0 C.gpointer, arg1 *C.GtkCell
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -2951,7 +5262,7 @@ func _gotk4_gtk4_CellArea_ConnectRemoveEditable(arg0 C.gpointer, arg1 *C.GtkCell
 //export _gotk4_gtk4_CellAreaContextClass_allocate
 func _gotk4_gtk4_CellAreaContextClass_allocate(arg0 *C.GtkCellAreaContext, arg1 C.int, arg2 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaContextOverrides](instance0)
 	if overrides.Allocate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaContextOverrides.Allocate, got none")
 	}
@@ -2968,7 +5279,7 @@ func _gotk4_gtk4_CellAreaContextClass_allocate(arg0 *C.GtkCellAreaContext, arg1 
 //export _gotk4_gtk4_CellAreaContextClass_get_preferred_height_for_width
 func _gotk4_gtk4_CellAreaContextClass_get_preferred_height_for_width(arg0 *C.GtkCellAreaContext, arg1 C.int, arg2 *C.int, arg3 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaContextOverrides](instance0)
 	if overrides.PreferredHeightForWidth == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaContextOverrides.PreferredHeightForWidth, got none")
 	}
@@ -2989,7 +5300,7 @@ func _gotk4_gtk4_CellAreaContextClass_get_preferred_height_for_width(arg0 *C.Gtk
 //export _gotk4_gtk4_CellAreaContextClass_get_preferred_width_for_height
 func _gotk4_gtk4_CellAreaContextClass_get_preferred_width_for_height(arg0 *C.GtkCellAreaContext, arg1 C.int, arg2 *C.int, arg3 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaContextOverrides](instance0)
 	if overrides.PreferredWidthForHeight == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaContextOverrides.PreferredWidthForHeight, got none")
 	}
@@ -3010,7 +5321,7 @@ func _gotk4_gtk4_CellAreaContextClass_get_preferred_width_for_height(arg0 *C.Gtk
 //export _gotk4_gtk4_CellAreaContextClass_reset
 func _gotk4_gtk4_CellAreaContextClass_reset(arg0 *C.GtkCellAreaContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellAreaContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellAreaContextOverrides](instance0)
 	if overrides.Reset == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellAreaContextOverrides.Reset, got none")
 	}
@@ -3021,7 +5332,7 @@ func _gotk4_gtk4_CellAreaContextClass_reset(arg0 *C.GtkCellAreaContext) {
 //export _gotk4_gtk4_CellRendererClass_activate
 func _gotk4_gtk4_CellRendererClass_activate(arg0 *C.GtkCellRenderer, arg1 *C.GdkEvent, arg2 *C.GtkWidget, arg3 *C.char, arg4 *C.GdkRectangle, arg5 *C.GdkRectangle, arg6 C.GtkCellRendererState) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.Activate, got none")
 	}
@@ -3086,7 +5397,7 @@ func _gotk4_gtk4_CellRendererClass_activate(arg0 *C.GtkCellRenderer, arg1 *C.Gdk
 //export _gotk4_gtk4_CellRendererClass_editing_canceled
 func _gotk4_gtk4_CellRendererClass_editing_canceled(arg0 *C.GtkCellRenderer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.EditingCanceled == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.EditingCanceled, got none")
 	}
@@ -3097,7 +5408,7 @@ func _gotk4_gtk4_CellRendererClass_editing_canceled(arg0 *C.GtkCellRenderer) {
 //export _gotk4_gtk4_CellRendererClass_editing_started
 func _gotk4_gtk4_CellRendererClass_editing_started(arg0 *C.GtkCellRenderer, arg1 *C.GtkCellEditable, arg2 *C.char) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.EditingStarted == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.EditingStarted, got none")
 	}
@@ -3130,7 +5441,7 @@ func _gotk4_gtk4_CellRendererClass_editing_started(arg0 *C.GtkCellRenderer, arg1
 //export _gotk4_gtk4_CellRendererClass_get_aligned_area
 func _gotk4_gtk4_CellRendererClass_get_aligned_area(arg0 *C.GtkCellRenderer, arg1 *C.GtkWidget, arg2 C.GtkCellRendererState, arg3 *C.GdkRectangle, arg4 *C.GdkRectangle) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.AlignedArea == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.AlignedArea, got none")
 	}
@@ -3169,7 +5480,7 @@ func _gotk4_gtk4_CellRendererClass_get_aligned_area(arg0 *C.GtkCellRenderer, arg
 //export _gotk4_gtk4_CellRendererClass_get_preferred_height
 func _gotk4_gtk4_CellRendererClass_get_preferred_height(arg0 *C.GtkCellRenderer, arg1 *C.GtkWidget, arg2 *C.int, arg3 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.PreferredHeight == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.PreferredHeight, got none")
 	}
@@ -3206,7 +5517,7 @@ func _gotk4_gtk4_CellRendererClass_get_preferred_height(arg0 *C.GtkCellRenderer,
 //export _gotk4_gtk4_CellRendererClass_get_preferred_height_for_width
 func _gotk4_gtk4_CellRendererClass_get_preferred_height_for_width(arg0 *C.GtkCellRenderer, arg1 *C.GtkWidget, arg2 C.int, arg3 *C.int, arg4 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.PreferredHeightForWidth == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.PreferredHeightForWidth, got none")
 	}
@@ -3245,7 +5556,7 @@ func _gotk4_gtk4_CellRendererClass_get_preferred_height_for_width(arg0 *C.GtkCel
 //export _gotk4_gtk4_CellRendererClass_get_preferred_width
 func _gotk4_gtk4_CellRendererClass_get_preferred_width(arg0 *C.GtkCellRenderer, arg1 *C.GtkWidget, arg2 *C.int, arg3 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.PreferredWidth == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.PreferredWidth, got none")
 	}
@@ -3282,7 +5593,7 @@ func _gotk4_gtk4_CellRendererClass_get_preferred_width(arg0 *C.GtkCellRenderer, 
 //export _gotk4_gtk4_CellRendererClass_get_preferred_width_for_height
 func _gotk4_gtk4_CellRendererClass_get_preferred_width_for_height(arg0 *C.GtkCellRenderer, arg1 *C.GtkWidget, arg2 C.int, arg3 *C.int, arg4 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.PreferredWidthForHeight == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.PreferredWidthForHeight, got none")
 	}
@@ -3321,7 +5632,7 @@ func _gotk4_gtk4_CellRendererClass_get_preferred_width_for_height(arg0 *C.GtkCel
 //export _gotk4_gtk4_CellRendererClass_get_request_mode
 func _gotk4_gtk4_CellRendererClass_get_request_mode(arg0 *C.GtkCellRenderer) (cret C.GtkSizeRequestMode) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.RequestMode == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.RequestMode, got none")
 	}
@@ -3338,7 +5649,7 @@ func _gotk4_gtk4_CellRendererClass_get_request_mode(arg0 *C.GtkCellRenderer) (cr
 //export _gotk4_gtk4_CellRendererClass_snapshot
 func _gotk4_gtk4_CellRendererClass_snapshot(arg0 *C.GtkCellRenderer, arg1 *C.GtkSnapshot, arg2 *C.GtkWidget, arg3 *C.GdkRectangle, arg4 *C.GdkRectangle, arg5 C.GtkCellRendererState) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.Snapshot == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.Snapshot, got none")
 	}
@@ -3377,7 +5688,7 @@ func _gotk4_gtk4_CellRendererClass_snapshot(arg0 *C.GtkCellRenderer, arg1 *C.Gtk
 //export _gotk4_gtk4_CellRendererClass_start_editing
 func _gotk4_gtk4_CellRendererClass_start_editing(arg0 *C.GtkCellRenderer, arg1 *C.GdkEvent, arg2 *C.GtkWidget, arg3 *C.char, arg4 *C.GdkRectangle, arg5 *C.GdkRectangle, arg6 C.GtkCellRendererState) (cret *C.GtkCellEditable) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererOverrides](instance0)
 	if overrides.StartEditing == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererOverrides.StartEditing, got none")
 	}
@@ -3444,7 +5755,7 @@ func _gotk4_gtk4_CellRenderer_ConnectEditingCanceled(arg0 C.gpointer, arg1 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3460,7 +5771,7 @@ func _gotk4_gtk4_CellRenderer_ConnectEditingStarted(arg0 C.gpointer, arg1 *C.Gtk
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3498,7 +5809,7 @@ func _gotk4_gtk4_CellRendererAccel_ConnectAccelCleared(arg0 C.gpointer, arg1 *C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3518,7 +5829,7 @@ func _gotk4_gtk4_CellRendererAccel_ConnectAccelEdited(arg0 C.gpointer, arg1 *C.g
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3544,7 +5855,7 @@ func _gotk4_gtk4_CellRendererCombo_ConnectChanged(arg0 C.gpointer, arg1 *C.gchar
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3563,7 +5874,7 @@ func _gotk4_gtk4_CellRendererCombo_ConnectChanged(arg0 C.gpointer, arg1 *C.gchar
 //export _gotk4_gtk4_CellRendererTextClass_edited
 func _gotk4_gtk4_CellRendererTextClass_edited(arg0 *C.GtkCellRendererText, arg1 *C.char, arg2 *C.char) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CellRendererTextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CellRendererTextOverrides](instance0)
 	if overrides.Edited == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CellRendererTextOverrides.Edited, got none")
 	}
@@ -3583,7 +5894,7 @@ func _gotk4_gtk4_CellRendererText_ConnectEdited(arg0 C.gpointer, arg1 *C.gchar, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3605,7 +5916,7 @@ func _gotk4_gtk4_CellRendererToggle_ConnectToggled(arg0 C.gpointer, arg1 *C.gcha
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3622,7 +5933,7 @@ func _gotk4_gtk4_CellRendererToggle_ConnectToggled(arg0 C.gpointer, arg1 *C.gcha
 //export _gotk4_gtk4_CheckButtonClass_activate
 func _gotk4_gtk4_CheckButtonClass_activate(arg0 *C.GtkCheckButton) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CheckButtonOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CheckButtonOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CheckButtonOverrides.Activate, got none")
 	}
@@ -3633,7 +5944,7 @@ func _gotk4_gtk4_CheckButtonClass_activate(arg0 *C.GtkCheckButton) {
 //export _gotk4_gtk4_CheckButtonClass_toggled
 func _gotk4_gtk4_CheckButtonClass_toggled(arg0 *C.GtkCheckButton) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[CheckButtonOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[CheckButtonOverrides](instance0)
 	if overrides.Toggled == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected CheckButtonOverrides.Toggled, got none")
 	}
@@ -3647,7 +5958,7 @@ func _gotk4_gtk4_CheckButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3663,7 +5974,7 @@ func _gotk4_gtk4_CheckButton_ConnectToggled(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3679,7 +5990,7 @@ func _gotk4_gtk4_ColorButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3695,7 +6006,7 @@ func _gotk4_gtk4_ColorButton_ConnectColorSet(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3711,7 +6022,7 @@ func _gotk4_gtk4_ColorDialogButton_ConnectActivate(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3727,7 +6038,7 @@ func _gotk4_gtk4_ColumnView_ConnectActivate(arg0 C.gpointer, arg1 C.guint, arg2 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3744,7 +6055,7 @@ func _gotk4_gtk4_ColumnView_ConnectActivate(arg0 C.gpointer, arg1 C.guint, arg2 
 //export _gotk4_gtk4_ComboBoxClass_activate
 func _gotk4_gtk4_ComboBoxClass_activate(arg0 *C.GtkComboBox) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ComboBoxOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ComboBoxOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ComboBoxOverrides.Activate, got none")
 	}
@@ -3755,7 +6066,7 @@ func _gotk4_gtk4_ComboBoxClass_activate(arg0 *C.GtkComboBox) {
 //export _gotk4_gtk4_ComboBoxClass_changed
 func _gotk4_gtk4_ComboBoxClass_changed(arg0 *C.GtkComboBox) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ComboBoxOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ComboBoxOverrides](instance0)
 	if overrides.Changed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ComboBoxOverrides.Changed, got none")
 	}
@@ -3766,7 +6077,7 @@ func _gotk4_gtk4_ComboBoxClass_changed(arg0 *C.GtkComboBox) {
 //export _gotk4_gtk4_ComboBoxClass_format_entry_text
 func _gotk4_gtk4_ComboBoxClass_format_entry_text(arg0 *C.GtkComboBox, arg1 *C.char) (cret *C.char) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ComboBoxOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ComboBoxOverrides](instance0)
 	if overrides.FormatEntryText == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ComboBoxOverrides.FormatEntryText, got none")
 	}
@@ -3790,7 +6101,7 @@ func _gotk4_gtk4_ComboBox_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3806,7 +6117,7 @@ func _gotk4_gtk4_ComboBox_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3822,7 +6133,7 @@ func _gotk4_gtk4_ComboBox_ConnectFormatEntryText(arg0 C.gpointer, arg1 *C.gchar,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3848,7 +6159,7 @@ func _gotk4_gtk4_ComboBox_ConnectMoveActive(arg0 C.gpointer, arg1 C.GtkScrollTyp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3868,7 +6179,7 @@ func _gotk4_gtk4_ComboBox_ConnectPopdown(arg0 C.gpointer, arg1 C.guintptr) (cret
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3892,7 +6203,7 @@ func _gotk4_gtk4_ComboBox_ConnectPopup(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3908,7 +6219,7 @@ func _gotk4_gtk4_CssProvider_ConnectParsingError(arg0 C.gpointer, arg1 *C.GtkCss
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3934,7 +6245,7 @@ func _gotk4_gtk4_CssProvider_ConnectParsingError(arg0 C.gpointer, arg1 *C.GtkCss
 //export _gotk4_gtk4_DialogClass_close
 func _gotk4_gtk4_DialogClass_close(arg0 *C.GtkDialog) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[DialogOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[DialogOverrides](instance0)
 	if overrides.Close == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected DialogOverrides.Close, got none")
 	}
@@ -3945,7 +6256,7 @@ func _gotk4_gtk4_DialogClass_close(arg0 *C.GtkDialog) {
 //export _gotk4_gtk4_DialogClass_response
 func _gotk4_gtk4_DialogClass_response(arg0 *C.GtkDialog, arg1 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[DialogOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[DialogOverrides](instance0)
 	if overrides.Response == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected DialogOverrides.Response, got none")
 	}
@@ -3963,7 +6274,7 @@ func _gotk4_gtk4_Dialog_ConnectClose(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3979,7 +6290,7 @@ func _gotk4_gtk4_Dialog_ConnectResponse(arg0 C.gpointer, arg1 C.gint, arg2 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -3999,7 +6310,7 @@ func _gotk4_gtk4_DragSource_ConnectDragBegin(arg0 C.gpointer, arg1 *C.GdkDrag, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4035,7 +6346,7 @@ func _gotk4_gtk4_DragSource_ConnectDragCancel(arg0 C.gpointer, arg1 *C.GdkDrag, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4081,7 +6392,7 @@ func _gotk4_gtk4_DragSource_ConnectDragEnd(arg0 C.gpointer, arg1 *C.GdkDrag, arg
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4121,7 +6432,7 @@ func _gotk4_gtk4_DragSource_ConnectPrepare(arg0 C.gpointer, arg1 C.gdouble, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4149,7 +6460,7 @@ func _gotk4_gtk4_DragSource_ConnectPrepare(arg0 C.gpointer, arg1 C.gdouble, arg2
 //export _gotk4_gtk4_DrawingAreaClass_resize
 func _gotk4_gtk4_DrawingAreaClass_resize(arg0 *C.GtkDrawingArea, arg1 C.int, arg2 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[DrawingAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[DrawingAreaOverrides](instance0)
 	if overrides.Resize == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected DrawingAreaOverrides.Resize, got none")
 	}
@@ -4169,7 +6480,7 @@ func _gotk4_gtk4_DrawingArea_ConnectResize(arg0 C.gpointer, arg1 C.gint, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4191,7 +6502,7 @@ func _gotk4_gtk4_DropControllerMotion_ConnectEnter(arg0 C.gpointer, arg1 C.gdoub
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4213,7 +6524,7 @@ func _gotk4_gtk4_DropControllerMotion_ConnectLeave(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4229,7 +6540,7 @@ func _gotk4_gtk4_DropControllerMotion_ConnectMotion(arg0 C.gpointer, arg1 C.gdou
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4251,7 +6562,7 @@ func _gotk4_gtk4_DropDown_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4267,7 +6578,7 @@ func _gotk4_gtk4_DropTarget_ConnectAccept(arg0 C.gpointer, arg1 *C.GdkDrop, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4311,7 +6622,7 @@ func _gotk4_gtk4_DropTarget_ConnectDrop(arg0 C.gpointer, arg1 *C.GValue, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4343,7 +6654,7 @@ func _gotk4_gtk4_DropTarget_ConnectEnter(arg0 C.gpointer, arg1 C.gdouble, arg2 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4371,7 +6682,7 @@ func _gotk4_gtk4_DropTarget_ConnectLeave(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4387,7 +6698,7 @@ func _gotk4_gtk4_DropTarget_ConnectMotion(arg0 C.gpointer, arg1 C.gdouble, arg2 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4415,7 +6726,7 @@ func _gotk4_gtk4_DropTargetAsync_ConnectAccept(arg0 C.gpointer, arg1 *C.GdkDrop,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4459,7 +6770,7 @@ func _gotk4_gtk4_DropTargetAsync_ConnectDragEnter(arg0 C.gpointer, arg1 *C.GdkDr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4505,7 +6816,7 @@ func _gotk4_gtk4_DropTargetAsync_ConnectDragLeave(arg0 C.gpointer, arg1 *C.GdkDr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4541,7 +6852,7 @@ func _gotk4_gtk4_DropTargetAsync_ConnectDragMotion(arg0 C.gpointer, arg1 *C.GdkD
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4587,7 +6898,7 @@ func _gotk4_gtk4_DropTargetAsync_ConnectDrop(arg0 C.gpointer, arg1 *C.GdkDrop, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4635,7 +6946,7 @@ func _gotk4_gtk4_EmojiChooser_ConnectEmojiPicked(arg0 C.gpointer, arg1 *C.gchar,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4652,7 +6963,7 @@ func _gotk4_gtk4_EmojiChooser_ConnectEmojiPicked(arg0 C.gpointer, arg1 *C.gchar,
 //export _gotk4_gtk4_EntryClass_activate
 func _gotk4_gtk4_EntryClass_activate(arg0 *C.GtkEntry) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryOverrides.Activate, got none")
 	}
@@ -4666,7 +6977,7 @@ func _gotk4_gtk4_Entry_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4682,7 +6993,7 @@ func _gotk4_gtk4_Entry_ConnectIconPress(arg0 C.gpointer, arg1 C.GtkEntryIconPosi
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4702,7 +7013,7 @@ func _gotk4_gtk4_Entry_ConnectIconRelease(arg0 C.gpointer, arg1 C.GtkEntryIconPo
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4719,7 +7030,7 @@ func _gotk4_gtk4_Entry_ConnectIconRelease(arg0 C.gpointer, arg1 C.GtkEntryIconPo
 //export _gotk4_gtk4_EntryBufferClass_delete_text
 func _gotk4_gtk4_EntryBufferClass_delete_text(arg0 *C.GtkEntryBuffer, arg1 C.guint, arg2 C.guint) (cret C.guint) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryBufferOverrides](instance0)
 	if overrides.DeleteText == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryBufferOverrides.DeleteText, got none")
 	}
@@ -4742,7 +7053,7 @@ func _gotk4_gtk4_EntryBufferClass_delete_text(arg0 *C.GtkEntryBuffer, arg1 C.gui
 //export _gotk4_gtk4_EntryBufferClass_deleted_text
 func _gotk4_gtk4_EntryBufferClass_deleted_text(arg0 *C.GtkEntryBuffer, arg1 C.guint, arg2 C.guint) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryBufferOverrides](instance0)
 	if overrides.DeletedText == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryBufferOverrides.DeletedText, got none")
 	}
@@ -4759,7 +7070,7 @@ func _gotk4_gtk4_EntryBufferClass_deleted_text(arg0 *C.GtkEntryBuffer, arg1 C.gu
 //export _gotk4_gtk4_EntryBufferClass_get_length
 func _gotk4_gtk4_EntryBufferClass_get_length(arg0 *C.GtkEntryBuffer) (cret C.guint) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryBufferOverrides](instance0)
 	if overrides.Length == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryBufferOverrides.Length, got none")
 	}
@@ -4776,7 +7087,7 @@ func _gotk4_gtk4_EntryBufferClass_get_length(arg0 *C.GtkEntryBuffer) (cret C.gui
 //export _gotk4_gtk4_EntryBufferClass_get_text
 func _gotk4_gtk4_EntryBufferClass_get_text(arg0 *C.GtkEntryBuffer, arg1 *C.gsize) (cret *C.char) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryBufferOverrides](instance0)
 	if overrides.Text == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryBufferOverrides.Text, got none")
 	}
@@ -4798,7 +7109,7 @@ func _gotk4_gtk4_EntryBufferClass_get_text(arg0 *C.GtkEntryBuffer, arg1 *C.gsize
 //export _gotk4_gtk4_EntryBufferClass_insert_text
 func _gotk4_gtk4_EntryBufferClass_insert_text(arg0 *C.GtkEntryBuffer, arg1 C.guint, arg2 *C.char, arg3 C.guint) (cret C.guint) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryBufferOverrides](instance0)
 	if overrides.InsertText == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryBufferOverrides.InsertText, got none")
 	}
@@ -4823,7 +7134,7 @@ func _gotk4_gtk4_EntryBufferClass_insert_text(arg0 *C.GtkEntryBuffer, arg1 C.gui
 //export _gotk4_gtk4_EntryBufferClass_inserted_text
 func _gotk4_gtk4_EntryBufferClass_inserted_text(arg0 *C.GtkEntryBuffer, arg1 C.guint, arg2 *C.char, arg3 C.guint) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[EntryBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[EntryBufferOverrides](instance0)
 	if overrides.InsertedText == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected EntryBufferOverrides.InsertedText, got none")
 	}
@@ -4845,7 +7156,7 @@ func _gotk4_gtk4_EntryBuffer_ConnectDeletedText(arg0 C.gpointer, arg1 C.guint, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4867,7 +7178,7 @@ func _gotk4_gtk4_EntryBuffer_ConnectInsertedText(arg0 C.gpointer, arg1 C.guint, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4891,7 +7202,7 @@ func _gotk4_gtk4_EntryCompletion_ConnectCursorOnMatch(arg0 C.gpointer, arg1 *C.G
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4937,7 +7248,7 @@ func _gotk4_gtk4_EntryCompletion_ConnectInsertPrefix(arg0 C.gpointer, arg1 *C.gc
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -4965,7 +7276,7 @@ func _gotk4_gtk4_EntryCompletion_ConnectMatchSelected(arg0 C.gpointer, arg1 *C.G
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5011,7 +7322,7 @@ func _gotk4_gtk4_EntryCompletion_ConnectNoMatches(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5027,7 +7338,7 @@ func _gotk4_gtk4_EventControllerFocus_ConnectEnter(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5043,7 +7354,7 @@ func _gotk4_gtk4_EventControllerFocus_ConnectLeave(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5059,7 +7370,7 @@ func _gotk4_gtk4_EventControllerKey_ConnectIMUpdate(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5075,7 +7386,7 @@ func _gotk4_gtk4_EventControllerKey_ConnectKeyPressed(arg0 C.gpointer, arg1 C.gu
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5107,7 +7418,7 @@ func _gotk4_gtk4_EventControllerKey_ConnectKeyReleased(arg0 C.gpointer, arg1 C.g
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5131,7 +7442,7 @@ func _gotk4_gtk4_EventControllerKey_ConnectModifiers(arg0 C.gpointer, arg1 C.Gdk
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5159,7 +7470,7 @@ func _gotk4_gtk4_EventControllerLegacy_ConnectEvent(arg0 C.gpointer, arg1 *C.Gdk
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5203,7 +7514,7 @@ func _gotk4_gtk4_EventControllerMotion_ConnectEnter(arg0 C.gpointer, arg1 C.gdou
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5225,7 +7536,7 @@ func _gotk4_gtk4_EventControllerMotion_ConnectLeave(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5241,7 +7552,7 @@ func _gotk4_gtk4_EventControllerMotion_ConnectMotion(arg0 C.gpointer, arg1 C.gdo
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5263,7 +7574,7 @@ func _gotk4_gtk4_EventControllerScroll_ConnectDecelerate(arg0 C.gpointer, arg1 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5285,7 +7596,7 @@ func _gotk4_gtk4_EventControllerScroll_ConnectScroll(arg0 C.gpointer, arg1 C.gdo
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5315,7 +7626,7 @@ func _gotk4_gtk4_EventControllerScroll_ConnectScrollBegin(arg0 C.gpointer, arg1 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5331,7 +7642,7 @@ func _gotk4_gtk4_EventControllerScroll_ConnectScrollEnd(arg0 C.gpointer, arg1 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5347,7 +7658,7 @@ func _gotk4_gtk4_Expander_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5363,7 +7674,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectDesktopFolder(arg0 C.gpointer, arg1 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5379,7 +7690,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectDownFolder(arg0 C.gpointer, arg1 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5395,7 +7706,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectHomeFolder(arg0 C.gpointer, arg1 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5411,7 +7722,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectLocationPopup(arg0 C.gpointer, arg1 *C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5431,7 +7742,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectLocationPopupOnPaste(arg0 C.gpointer, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5447,7 +7758,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectLocationTogglePopup(arg0 C.gpointer, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5463,7 +7774,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectPlacesShortcut(arg0 C.gpointer, arg1 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5479,7 +7790,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectQuickBookmark(arg0 C.gpointer, arg1 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5499,7 +7810,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectRecentShortcut(arg0 C.gpointer, arg1 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5515,7 +7826,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectSearchShortcut(arg0 C.gpointer, arg1 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5531,7 +7842,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectShowHidden(arg0 C.gpointer, arg1 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5547,7 +7858,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectUpFolder(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5560,7 +7871,7 @@ func _gotk4_gtk4_FileChooserWidget_ConnectUpFolder(arg0 C.gpointer, arg1 C.guint
 //export _gotk4_gtk4_FilterClass_get_strictness
 func _gotk4_gtk4_FilterClass_get_strictness(arg0 *C.GtkFilter) (cret C.GtkFilterMatch) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[FilterOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[FilterOverrides](instance0)
 	if overrides.Strictness == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FilterOverrides.Strictness, got none")
 	}
@@ -5577,7 +7888,7 @@ func _gotk4_gtk4_FilterClass_get_strictness(arg0 *C.GtkFilter) (cret C.GtkFilter
 //export _gotk4_gtk4_FilterClass_match
 func _gotk4_gtk4_FilterClass_match(arg0 *C.GtkFilter, arg1 C.gpointer) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[FilterOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[FilterOverrides](instance0)
 	if overrides.Match == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FilterOverrides.Match, got none")
 	}
@@ -5603,7 +7914,7 @@ func _gotk4_gtk4_Filter_ConnectChanged(arg0 C.gpointer, arg1 C.GtkFilterChange, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5623,7 +7934,7 @@ func _gotk4_gtk4_FlowBox_ConnectActivateCursorChild(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5639,7 +7950,7 @@ func _gotk4_gtk4_FlowBox_ConnectChildActivated(arg0 C.gpointer, arg1 *C.GtkFlowB
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5659,7 +7970,7 @@ func _gotk4_gtk4_FlowBox_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementSt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5697,7 +8008,7 @@ func _gotk4_gtk4_FlowBox_ConnectSelectAll(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5713,7 +8024,7 @@ func _gotk4_gtk4_FlowBox_ConnectSelectedChildrenChanged(arg0 C.gpointer, arg1 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5729,7 +8040,7 @@ func _gotk4_gtk4_FlowBox_ConnectToggleCursorChild(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5745,7 +8056,7 @@ func _gotk4_gtk4_FlowBox_ConnectUnselectAll(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5758,7 +8069,7 @@ func _gotk4_gtk4_FlowBox_ConnectUnselectAll(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_FlowBoxChildClass_activate
 func _gotk4_gtk4_FlowBoxChildClass_activate(arg0 *C.GtkFlowBoxChild) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[FlowBoxChildOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[FlowBoxChildOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FlowBoxChildOverrides.Activate, got none")
 	}
@@ -5772,7 +8083,7 @@ func _gotk4_gtk4_FlowBoxChild_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5788,7 +8099,7 @@ func _gotk4_gtk4_FontButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5804,7 +8115,7 @@ func _gotk4_gtk4_FontButton_ConnectFontSet(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5820,7 +8131,7 @@ func _gotk4_gtk4_FontDialogButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5833,7 +8144,7 @@ func _gotk4_gtk4_FontDialogButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintp
 //export _gotk4_gtk4_FrameClass_compute_child_allocation
 func _gotk4_gtk4_FrameClass_compute_child_allocation(arg0 *C.GtkFrame, arg1 *C.GtkAllocation) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[FrameOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[FrameOverrides](instance0)
 	if overrides.ComputeChildAllocation == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected FrameOverrides.ComputeChildAllocation, got none")
 	}
@@ -5850,7 +8161,7 @@ func _gotk4_gtk4_FrameClass_compute_child_allocation(arg0 *C.GtkFrame, arg1 *C.G
 //export _gotk4_gtk4_GLAreaClass_render
 func _gotk4_gtk4_GLAreaClass_render(arg0 *C.GtkGLArea, arg1 *C.GdkGLContext) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[GLAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[GLAreaOverrides](instance0)
 	if overrides.Render == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected GLAreaOverrides.Render, got none")
 	}
@@ -5889,7 +8200,7 @@ func _gotk4_gtk4_GLAreaClass_render(arg0 *C.GtkGLArea, arg1 *C.GdkGLContext) (cr
 //export _gotk4_gtk4_GLAreaClass_resize
 func _gotk4_gtk4_GLAreaClass_resize(arg0 *C.GtkGLArea, arg1 C.int, arg2 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[GLAreaOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[GLAreaOverrides](instance0)
 	if overrides.Resize == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected GLAreaOverrides.Resize, got none")
 	}
@@ -5909,7 +8220,7 @@ func _gotk4_gtk4_GLArea_ConnectCreateContext(arg0 C.gpointer, arg1 C.guintptr) (
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5932,7 +8243,7 @@ func _gotk4_gtk4_GLArea_ConnectRender(arg0 C.gpointer, arg1 *C.GdkGLContext, arg
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5976,7 +8287,7 @@ func _gotk4_gtk4_GLArea_ConnectResize(arg0 C.gpointer, arg1 C.gint, arg2 C.gint,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -5998,7 +8309,7 @@ func _gotk4_gtk4_Gesture_ConnectBegin(arg0 C.gpointer, arg1 *C.GdkEventSequence,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6020,7 +8331,7 @@ func _gotk4_gtk4_Gesture_ConnectCancel(arg0 C.gpointer, arg1 *C.GdkEventSequence
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6042,7 +8353,7 @@ func _gotk4_gtk4_Gesture_ConnectEnd(arg0 C.gpointer, arg1 *C.GdkEventSequence, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6064,7 +8375,7 @@ func _gotk4_gtk4_Gesture_ConnectSequenceStateChanged(arg0 C.gpointer, arg1 *C.Gd
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6088,7 +8399,7 @@ func _gotk4_gtk4_Gesture_ConnectUpdate(arg0 C.gpointer, arg1 *C.GdkEventSequence
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6110,7 +8421,7 @@ func _gotk4_gtk4_GestureClick_ConnectPressed(arg0 C.gpointer, arg1 C.gint, arg2 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6134,7 +8445,7 @@ func _gotk4_gtk4_GestureClick_ConnectReleased(arg0 C.gpointer, arg1 C.gint, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6158,7 +8469,7 @@ func _gotk4_gtk4_GestureClick_ConnectStopped(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6174,7 +8485,7 @@ func _gotk4_gtk4_GestureClick_ConnectUnpairedRelease(arg0 C.gpointer, arg1 C.gdo
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6202,7 +8513,7 @@ func _gotk4_gtk4_GestureDrag_ConnectDragBegin(arg0 C.gpointer, arg1 C.gdouble, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6224,7 +8535,7 @@ func _gotk4_gtk4_GestureDrag_ConnectDragEnd(arg0 C.gpointer, arg1 C.gdouble, arg
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6246,7 +8557,7 @@ func _gotk4_gtk4_GestureDrag_ConnectDragUpdate(arg0 C.gpointer, arg1 C.gdouble, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6268,7 +8579,7 @@ func _gotk4_gtk4_GestureLongPress_ConnectCancelled(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6284,7 +8595,7 @@ func _gotk4_gtk4_GestureLongPress_ConnectPressed(arg0 C.gpointer, arg1 C.gdouble
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6306,7 +8617,7 @@ func _gotk4_gtk4_GesturePan_ConnectPan(arg0 C.gpointer, arg1 C.GtkPanDirection, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6328,7 +8639,7 @@ func _gotk4_gtk4_GestureRotate_ConnectAngleChanged(arg0 C.gpointer, arg1 C.gdoub
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6350,7 +8661,7 @@ func _gotk4_gtk4_GestureStylus_ConnectDown(arg0 C.gpointer, arg1 C.gdouble, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6372,7 +8683,7 @@ func _gotk4_gtk4_GestureStylus_ConnectMotion(arg0 C.gpointer, arg1 C.gdouble, ar
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6394,7 +8705,7 @@ func _gotk4_gtk4_GestureStylus_ConnectProximity(arg0 C.gpointer, arg1 C.gdouble,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6416,7 +8727,7 @@ func _gotk4_gtk4_GestureStylus_ConnectUp(arg0 C.gpointer, arg1 C.gdouble, arg2 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6438,7 +8749,7 @@ func _gotk4_gtk4_GestureSwipe_ConnectSwipe(arg0 C.gpointer, arg1 C.gdouble, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6460,7 +8771,7 @@ func _gotk4_gtk4_GestureZoom_ConnectScaleChanged(arg0 C.gpointer, arg1 C.gdouble
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6480,7 +8791,7 @@ func _gotk4_gtk4_GridView_ConnectActivate(arg0 C.gpointer, arg1 C.guint, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6497,7 +8808,7 @@ func _gotk4_gtk4_GridView_ConnectActivate(arg0 C.gpointer, arg1 C.guint, arg2 C.
 //export _gotk4_gtk4_IMContextClass_activate_osk
 func _gotk4_gtk4_IMContextClass_activate_osk(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.ActivateOSK == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.ActivateOSK, got none")
 	}
@@ -6508,7 +8819,7 @@ func _gotk4_gtk4_IMContextClass_activate_osk(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_activate_osk_with_event
 func _gotk4_gtk4_IMContextClass_activate_osk_with_event(arg0 *C.GtkIMContext, arg1 *C.GdkEvent) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.ActivateOSKWithEvent == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.ActivateOSKWithEvent, got none")
 	}
@@ -6547,7 +8858,7 @@ func _gotk4_gtk4_IMContextClass_activate_osk_with_event(arg0 *C.GtkIMContext, ar
 //export _gotk4_gtk4_IMContextClass_commit
 func _gotk4_gtk4_IMContextClass_commit(arg0 *C.GtkIMContext, arg1 *C.char) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.Commit == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.Commit, got none")
 	}
@@ -6562,7 +8873,7 @@ func _gotk4_gtk4_IMContextClass_commit(arg0 *C.GtkIMContext, arg1 *C.char) {
 //export _gotk4_gtk4_IMContextClass_delete_surrounding
 func _gotk4_gtk4_IMContextClass_delete_surrounding(arg0 *C.GtkIMContext, arg1 C.int, arg2 C.int) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.DeleteSurrounding == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.DeleteSurrounding, got none")
 	}
@@ -6587,7 +8898,7 @@ func _gotk4_gtk4_IMContextClass_delete_surrounding(arg0 *C.GtkIMContext, arg1 C.
 //export _gotk4_gtk4_IMContextClass_filter_keypress
 func _gotk4_gtk4_IMContextClass_filter_keypress(arg0 *C.GtkIMContext, arg1 *C.GdkEvent) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.FilterKeypress == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.FilterKeypress, got none")
 	}
@@ -6626,7 +8937,7 @@ func _gotk4_gtk4_IMContextClass_filter_keypress(arg0 *C.GtkIMContext, arg1 *C.Gd
 //export _gotk4_gtk4_IMContextClass_focus_in
 func _gotk4_gtk4_IMContextClass_focus_in(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.FocusIn == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.FocusIn, got none")
 	}
@@ -6637,7 +8948,7 @@ func _gotk4_gtk4_IMContextClass_focus_in(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_focus_out
 func _gotk4_gtk4_IMContextClass_focus_out(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.FocusOut == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.FocusOut, got none")
 	}
@@ -6648,7 +8959,7 @@ func _gotk4_gtk4_IMContextClass_focus_out(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_get_preedit_string
 func _gotk4_gtk4_IMContextClass_get_preedit_string(arg0 *C.GtkIMContext, arg1 **C.char, arg2 **C.PangoAttrList, arg3 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.PreeditString == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.PreeditString, got none")
 	}
@@ -6667,7 +8978,7 @@ func _gotk4_gtk4_IMContextClass_get_preedit_string(arg0 *C.GtkIMContext, arg1 **
 //export _gotk4_gtk4_IMContextClass_get_surrounding
 func _gotk4_gtk4_IMContextClass_get_surrounding(arg0 *C.GtkIMContext, arg1 **C.char, arg2 *C.int) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.Surrounding == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.Surrounding, got none")
 	}
@@ -6690,7 +9001,7 @@ func _gotk4_gtk4_IMContextClass_get_surrounding(arg0 *C.GtkIMContext, arg1 **C.c
 //export _gotk4_gtk4_IMContextClass_get_surrounding_with_selection
 func _gotk4_gtk4_IMContextClass_get_surrounding_with_selection(arg0 *C.GtkIMContext, arg1 **C.char, arg2 *C.int, arg3 *C.int) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.SurroundingWithSelection == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.SurroundingWithSelection, got none")
 	}
@@ -6712,10 +9023,33 @@ func _gotk4_gtk4_IMContextClass_get_surrounding_with_selection(arg0 *C.GtkIMCont
 	return cret
 }
 
+//export _gotk4_gtk4_IMContextClass_invalid_composition
+func _gotk4_gtk4_IMContextClass_invalid_composition(arg0 *C.GtkIMContext, arg1 *C.char) (cret C.gboolean) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
+	if overrides.InvalidComposition == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.InvalidComposition, got none")
+	}
+
+	var _str string // out
+
+	_str = C.GoString((*C.gchar)(unsafe.Pointer(arg1)))
+
+	ok := overrides.InvalidComposition(_str)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
 //export _gotk4_gtk4_IMContextClass_preedit_changed
 func _gotk4_gtk4_IMContextClass_preedit_changed(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.PreeditChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.PreeditChanged, got none")
 	}
@@ -6726,7 +9060,7 @@ func _gotk4_gtk4_IMContextClass_preedit_changed(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_preedit_end
 func _gotk4_gtk4_IMContextClass_preedit_end(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.PreeditEnd == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.PreeditEnd, got none")
 	}
@@ -6737,7 +9071,7 @@ func _gotk4_gtk4_IMContextClass_preedit_end(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_preedit_start
 func _gotk4_gtk4_IMContextClass_preedit_start(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.PreeditStart == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.PreeditStart, got none")
 	}
@@ -6748,7 +9082,7 @@ func _gotk4_gtk4_IMContextClass_preedit_start(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_reset
 func _gotk4_gtk4_IMContextClass_reset(arg0 *C.GtkIMContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.Reset == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.Reset, got none")
 	}
@@ -6759,7 +9093,7 @@ func _gotk4_gtk4_IMContextClass_reset(arg0 *C.GtkIMContext) {
 //export _gotk4_gtk4_IMContextClass_retrieve_surrounding
 func _gotk4_gtk4_IMContextClass_retrieve_surrounding(arg0 *C.GtkIMContext) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.RetrieveSurrounding == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.RetrieveSurrounding, got none")
 	}
@@ -6778,7 +9112,7 @@ func _gotk4_gtk4_IMContextClass_retrieve_surrounding(arg0 *C.GtkIMContext) (cret
 //export _gotk4_gtk4_IMContextClass_set_client_widget
 func _gotk4_gtk4_IMContextClass_set_client_widget(arg0 *C.GtkIMContext, arg1 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.SetClientWidget == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.SetClientWidget, got none")
 	}
@@ -6808,7 +9142,7 @@ func _gotk4_gtk4_IMContextClass_set_client_widget(arg0 *C.GtkIMContext, arg1 *C.
 //export _gotk4_gtk4_IMContextClass_set_cursor_location
 func _gotk4_gtk4_IMContextClass_set_cursor_location(arg0 *C.GtkIMContext, arg1 *C.GdkRectangle) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.SetCursorLocation == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.SetCursorLocation, got none")
 	}
@@ -6823,7 +9157,7 @@ func _gotk4_gtk4_IMContextClass_set_cursor_location(arg0 *C.GtkIMContext, arg1 *
 //export _gotk4_gtk4_IMContextClass_set_surrounding
 func _gotk4_gtk4_IMContextClass_set_surrounding(arg0 *C.GtkIMContext, arg1 *C.char, arg2 C.int, arg3 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.SetSurrounding == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.SetSurrounding, got none")
 	}
@@ -6840,7 +9174,7 @@ func _gotk4_gtk4_IMContextClass_set_surrounding(arg0 *C.GtkIMContext, arg1 *C.ch
 //export _gotk4_gtk4_IMContextClass_set_surrounding_with_selection
 func _gotk4_gtk4_IMContextClass_set_surrounding_with_selection(arg0 *C.GtkIMContext, arg1 *C.char, arg2 C.int, arg3 C.int, arg4 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.SetSurroundingWithSelection == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.SetSurroundingWithSelection, got none")
 	}
@@ -6859,7 +9193,7 @@ func _gotk4_gtk4_IMContextClass_set_surrounding_with_selection(arg0 *C.GtkIMCont
 //export _gotk4_gtk4_IMContextClass_set_use_preedit
 func _gotk4_gtk4_IMContextClass_set_use_preedit(arg0 *C.GtkIMContext, arg1 C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[IMContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[IMContextOverrides](instance0)
 	if overrides.SetUsePreedit == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected IMContextOverrides.SetUsePreedit, got none")
 	}
@@ -6879,7 +9213,7 @@ func _gotk4_gtk4_IMContext_ConnectCommit(arg0 C.gpointer, arg1 *C.gchar, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6899,7 +9233,7 @@ func _gotk4_gtk4_IMContext_ConnectDeleteSurrounding(arg0 C.gpointer, arg1 C.gint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6923,13 +9257,41 @@ func _gotk4_gtk4_IMContext_ConnectDeleteSurrounding(arg0 C.gpointer, arg1 C.gint
 	return cret
 }
 
+//export _gotk4_gtk4_IMContext_ConnectInvalidComposition
+func _gotk4_gtk4_IMContext_ConnectInvalidComposition(arg0 C.gpointer, arg1 *C.gchar, arg2 C.guintptr) (cret C.gboolean) {
+	var f func(str string) (ok bool)
+	{
+		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
+		if closure == nil {
+			return
+		}
+		defer closure.TryRepanic()
+
+		f = closure.Func.(func(str string) (ok bool))
+	}
+
+	var _str string // out
+
+	_str = C.GoString((*C.gchar)(unsafe.Pointer(arg1)))
+
+	ok := f(_str)
+
+	var _ bool
+
+	if ok {
+		cret = C.TRUE
+	}
+
+	return cret
+}
+
 //export _gotk4_gtk4_IMContext_ConnectPreeditChanged
 func _gotk4_gtk4_IMContext_ConnectPreeditChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	var f func()
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6945,7 +9307,7 @@ func _gotk4_gtk4_IMContext_ConnectPreeditEnd(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6961,7 +9323,7 @@ func _gotk4_gtk4_IMContext_ConnectPreeditStart(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -6977,7 +9339,7 @@ func _gotk4_gtk4_IMContext_ConnectRetrieveSurrounding(arg0 C.gpointer, arg1 C.gu
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7001,7 +9363,7 @@ func _gotk4_gtk4_IconTheme_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7017,7 +9379,7 @@ func _gotk4_gtk4_IconView_ConnectActivateCursorItem(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7041,7 +9403,7 @@ func _gotk4_gtk4_IconView_ConnectItemActivated(arg0 C.gpointer, arg1 *C.GtkTreeP
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7061,7 +9423,7 @@ func _gotk4_gtk4_IconView_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementS
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7099,7 +9461,7 @@ func _gotk4_gtk4_IconView_ConnectSelectAll(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7115,7 +9477,7 @@ func _gotk4_gtk4_IconView_ConnectSelectCursorItem(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7131,7 +9493,7 @@ func _gotk4_gtk4_IconView_ConnectSelectionChanged(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7147,7 +9509,7 @@ func _gotk4_gtk4_IconView_ConnectToggleCursorItem(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7163,7 +9525,7 @@ func _gotk4_gtk4_IconView_ConnectUnselectAll(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7179,7 +9541,7 @@ func _gotk4_gtk4_InfoBar_ConnectClose(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7195,7 +9557,7 @@ func _gotk4_gtk4_InfoBar_ConnectResponse(arg0 C.gpointer, arg1 C.gint, arg2 C.gu
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7215,7 +9577,7 @@ func _gotk4_gtk4_Label_ConnectActivateCurrentLink(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7231,7 +9593,7 @@ func _gotk4_gtk4_Label_ConnectActivateLink(arg0 C.gpointer, arg1 *C.gchar, arg2 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7259,7 +9621,7 @@ func _gotk4_gtk4_Label_ConnectCopyClipboard(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7275,7 +9637,7 @@ func _gotk4_gtk4_Label_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementStep
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7298,7 +9660,7 @@ func _gotk4_gtk4_Label_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementStep
 //export _gotk4_gtk4_LayoutManagerClass_allocate
 func _gotk4_gtk4_LayoutManagerClass_allocate(arg0 *C.GtkLayoutManager, arg1 *C.GtkWidget, arg2 C.int, arg3 C.int, arg4 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[LayoutManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[LayoutManagerOverrides](instance0)
 	if overrides.Allocate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected LayoutManagerOverrides.Allocate, got none")
 	}
@@ -7335,7 +9697,7 @@ func _gotk4_gtk4_LayoutManagerClass_allocate(arg0 *C.GtkLayoutManager, arg1 *C.G
 //export _gotk4_gtk4_LayoutManagerClass_create_layout_child
 func _gotk4_gtk4_LayoutManagerClass_create_layout_child(arg0 *C.GtkLayoutManager, arg1 *C.GtkWidget, arg2 *C.GtkWidget) (cret *C.GtkLayoutChild) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[LayoutManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[LayoutManagerOverrides](instance0)
 	if overrides.CreateLayoutChild == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected LayoutManagerOverrides.CreateLayoutChild, got none")
 	}
@@ -7391,7 +9753,7 @@ func _gotk4_gtk4_LayoutManagerClass_create_layout_child(arg0 *C.GtkLayoutManager
 //export _gotk4_gtk4_LayoutManagerClass_get_request_mode
 func _gotk4_gtk4_LayoutManagerClass_get_request_mode(arg0 *C.GtkLayoutManager, arg1 *C.GtkWidget) (cret C.GtkSizeRequestMode) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[LayoutManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[LayoutManagerOverrides](instance0)
 	if overrides.RequestMode == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected LayoutManagerOverrides.RequestMode, got none")
 	}
@@ -7428,7 +9790,7 @@ func _gotk4_gtk4_LayoutManagerClass_get_request_mode(arg0 *C.GtkLayoutManager, a
 //export _gotk4_gtk4_LayoutManagerClass_measure
 func _gotk4_gtk4_LayoutManagerClass_measure(arg0 *C.GtkLayoutManager, arg1 *C.GtkWidget, arg2 C.GtkOrientation, arg3 C.int, arg4 *C.int, arg5 *C.int, arg6 *C.int, arg7 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[LayoutManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[LayoutManagerOverrides](instance0)
 	if overrides.Measure == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected LayoutManagerOverrides.Measure, got none")
 	}
@@ -7473,7 +9835,7 @@ func _gotk4_gtk4_LayoutManagerClass_measure(arg0 *C.GtkLayoutManager, arg1 *C.Gt
 //export _gotk4_gtk4_LayoutManagerClass_root
 func _gotk4_gtk4_LayoutManagerClass_root(arg0 *C.GtkLayoutManager) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[LayoutManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[LayoutManagerOverrides](instance0)
 	if overrides.Root == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected LayoutManagerOverrides.Root, got none")
 	}
@@ -7484,7 +9846,7 @@ func _gotk4_gtk4_LayoutManagerClass_root(arg0 *C.GtkLayoutManager) {
 //export _gotk4_gtk4_LayoutManagerClass_unroot
 func _gotk4_gtk4_LayoutManagerClass_unroot(arg0 *C.GtkLayoutManager) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[LayoutManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[LayoutManagerOverrides](instance0)
 	if overrides.Unroot == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected LayoutManagerOverrides.Unroot, got none")
 	}
@@ -7498,7 +9860,7 @@ func _gotk4_gtk4_LevelBar_ConnectOffsetChanged(arg0 C.gpointer, arg1 *C.gchar, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7518,7 +9880,7 @@ func _gotk4_gtk4_LinkButton_ConnectActivateLink(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7542,7 +9904,7 @@ func _gotk4_gtk4_ListBox_ConnectActivateCursorRow(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7554,32 +9916,32 @@ func _gotk4_gtk4_ListBox_ConnectActivateCursorRow(arg0 C.gpointer, arg1 C.guintp
 
 //export _gotk4_gtk4_ListBox_ConnectMoveCursor
 func _gotk4_gtk4_ListBox_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementStep, arg2 C.gint, arg3 C.gboolean, arg4 C.gboolean, arg5 C.guintptr) {
-	var f func(object MovementStep, p0 int, p1, p2 bool)
+	var f func(step MovementStep, count int, extend, modify bool)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object MovementStep, p0 int, p1, p2 bool))
+		f = closure.Func.(func(step MovementStep, count int, extend, modify bool))
 	}
 
-	var _object MovementStep // out
-	var _p0 int              // out
-	var _p1 bool             // out
-	var _p2 bool             // out
+	var _step MovementStep // out
+	var _count int         // out
+	var _extend bool       // out
+	var _modify bool       // out
 
-	_object = MovementStep(arg1)
-	_p0 = int(arg2)
+	_step = MovementStep(arg1)
+	_count = int(arg2)
 	if arg3 != 0 {
-		_p1 = true
+		_extend = true
 	}
 	if arg4 != 0 {
-		_p2 = true
+		_modify = true
 	}
 
-	f(_object, _p0, _p1, _p2)
+	f(_step, _count, _extend, _modify)
 }
 
 //export _gotk4_gtk4_ListBox_ConnectRowActivated
@@ -7588,7 +9950,7 @@ func _gotk4_gtk4_ListBox_ConnectRowActivated(arg0 C.gpointer, arg1 *C.GtkListBox
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7608,7 +9970,7 @@ func _gotk4_gtk4_ListBox_ConnectRowSelected(arg0 C.gpointer, arg1 *C.GtkListBoxR
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7630,7 +9992,7 @@ func _gotk4_gtk4_ListBox_ConnectSelectAll(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7646,7 +10008,7 @@ func _gotk4_gtk4_ListBox_ConnectSelectedRowsChanged(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7662,7 +10024,7 @@ func _gotk4_gtk4_ListBox_ConnectToggleCursorRow(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7678,7 +10040,7 @@ func _gotk4_gtk4_ListBox_ConnectUnselectAll(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7691,7 +10053,7 @@ func _gotk4_gtk4_ListBox_ConnectUnselectAll(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_ListBoxRowClass_activate
 func _gotk4_gtk4_ListBoxRowClass_activate(arg0 *C.GtkListBoxRow) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ListBoxRowOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ListBoxRowOverrides](instance0)
 	if overrides.Activate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ListBoxRowOverrides.Activate, got none")
 	}
@@ -7705,7 +10067,7 @@ func _gotk4_gtk4_ListBoxRow_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7721,7 +10083,7 @@ func _gotk4_gtk4_ListView_ConnectActivate(arg0 C.gpointer, arg1 C.guint, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7738,7 +10100,7 @@ func _gotk4_gtk4_ListView_ConnectActivate(arg0 C.gpointer, arg1 C.guint, arg2 C.
 //export _gotk4_gtk4_MediaFileClass_close
 func _gotk4_gtk4_MediaFileClass_close(arg0 *C.GtkMediaFile) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaFileOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaFileOverrides](instance0)
 	if overrides.Close == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaFileOverrides.Close, got none")
 	}
@@ -7749,7 +10111,7 @@ func _gotk4_gtk4_MediaFileClass_close(arg0 *C.GtkMediaFile) {
 //export _gotk4_gtk4_MediaFileClass_open
 func _gotk4_gtk4_MediaFileClass_open(arg0 *C.GtkMediaFile) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaFileOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaFileOverrides](instance0)
 	if overrides.Open == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaFileOverrides.Open, got none")
 	}
@@ -7760,7 +10122,7 @@ func _gotk4_gtk4_MediaFileClass_open(arg0 *C.GtkMediaFile) {
 //export _gotk4_gtk4_MediaStreamClass_pause
 func _gotk4_gtk4_MediaStreamClass_pause(arg0 *C.GtkMediaStream) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaStreamOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaStreamOverrides](instance0)
 	if overrides.Pause == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaStreamOverrides.Pause, got none")
 	}
@@ -7771,7 +10133,7 @@ func _gotk4_gtk4_MediaStreamClass_pause(arg0 *C.GtkMediaStream) {
 //export _gotk4_gtk4_MediaStreamClass_play
 func _gotk4_gtk4_MediaStreamClass_play(arg0 *C.GtkMediaStream) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaStreamOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaStreamOverrides](instance0)
 	if overrides.Play == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaStreamOverrides.Play, got none")
 	}
@@ -7790,7 +10152,7 @@ func _gotk4_gtk4_MediaStreamClass_play(arg0 *C.GtkMediaStream) (cret C.gboolean)
 //export _gotk4_gtk4_MediaStreamClass_realize
 func _gotk4_gtk4_MediaStreamClass_realize(arg0 *C.GtkMediaStream, arg1 *C.GdkSurface) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaStreamOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaStreamOverrides](instance0)
 	if overrides.Realize == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaStreamOverrides.Realize, got none")
 	}
@@ -7821,7 +10183,7 @@ func _gotk4_gtk4_MediaStreamClass_realize(arg0 *C.GtkMediaStream, arg1 *C.GdkSur
 //export _gotk4_gtk4_MediaStreamClass_seek
 func _gotk4_gtk4_MediaStreamClass_seek(arg0 *C.GtkMediaStream, arg1 C.gint64) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaStreamOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaStreamOverrides](instance0)
 	if overrides.Seek == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaStreamOverrides.Seek, got none")
 	}
@@ -7836,7 +10198,7 @@ func _gotk4_gtk4_MediaStreamClass_seek(arg0 *C.GtkMediaStream, arg1 C.gint64) {
 //export _gotk4_gtk4_MediaStreamClass_unrealize
 func _gotk4_gtk4_MediaStreamClass_unrealize(arg0 *C.GtkMediaStream, arg1 *C.GdkSurface) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaStreamOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaStreamOverrides](instance0)
 	if overrides.Unrealize == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaStreamOverrides.Unrealize, got none")
 	}
@@ -7867,7 +10229,7 @@ func _gotk4_gtk4_MediaStreamClass_unrealize(arg0 *C.GtkMediaStream, arg1 *C.GdkS
 //export _gotk4_gtk4_MediaStreamClass_update_audio
 func _gotk4_gtk4_MediaStreamClass_update_audio(arg0 *C.GtkMediaStream, arg1 C.gboolean, arg2 C.double) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[MediaStreamOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[MediaStreamOverrides](instance0)
 	if overrides.UpdateAudio == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected MediaStreamOverrides.UpdateAudio, got none")
 	}
@@ -7889,7 +10251,7 @@ func _gotk4_gtk4_MenuButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7902,7 +10264,7 @@ func _gotk4_gtk4_MenuButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_NativeDialogClass_hide
 func _gotk4_gtk4_NativeDialogClass_hide(arg0 *C.GtkNativeDialog) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[NativeDialogOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[NativeDialogOverrides](instance0)
 	if overrides.Hide == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected NativeDialogOverrides.Hide, got none")
 	}
@@ -7913,7 +10275,7 @@ func _gotk4_gtk4_NativeDialogClass_hide(arg0 *C.GtkNativeDialog) {
 //export _gotk4_gtk4_NativeDialogClass_response
 func _gotk4_gtk4_NativeDialogClass_response(arg0 *C.GtkNativeDialog, arg1 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[NativeDialogOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[NativeDialogOverrides](instance0)
 	if overrides.Response == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected NativeDialogOverrides.Response, got none")
 	}
@@ -7928,7 +10290,7 @@ func _gotk4_gtk4_NativeDialogClass_response(arg0 *C.GtkNativeDialog, arg1 C.int)
 //export _gotk4_gtk4_NativeDialogClass_show
 func _gotk4_gtk4_NativeDialogClass_show(arg0 *C.GtkNativeDialog) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[NativeDialogOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[NativeDialogOverrides](instance0)
 	if overrides.Show == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected NativeDialogOverrides.Show, got none")
 	}
@@ -7942,7 +10304,7 @@ func _gotk4_gtk4_NativeDialog_ConnectResponse(arg0 C.gpointer, arg1 C.gint, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -7958,22 +10320,22 @@ func _gotk4_gtk4_NativeDialog_ConnectResponse(arg0 C.gpointer, arg1 C.gint, arg2
 
 //export _gotk4_gtk4_Notebook_ConnectChangeCurrentPage
 func _gotk4_gtk4_Notebook_ConnectChangeCurrentPage(arg0 C.gpointer, arg1 C.gint, arg2 C.guintptr) (cret C.gboolean) {
-	var f func(object int) (ok bool)
+	var f func(page int) (ok bool)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object int) (ok bool))
+		f = closure.Func.(func(page int) (ok bool))
 	}
 
-	var _object int // out
+	var _page int // out
 
-	_object = int(arg1)
+	_page = int(arg1)
 
-	ok := f(_object)
+	ok := f(_page)
 
 	var _ bool
 
@@ -7990,7 +10352,7 @@ func _gotk4_gtk4_Notebook_ConnectCreateWindow(arg0 C.gpointer, arg1 *C.GtkWidget
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8030,22 +10392,22 @@ func _gotk4_gtk4_Notebook_ConnectCreateWindow(arg0 C.gpointer, arg1 *C.GtkWidget
 
 //export _gotk4_gtk4_Notebook_ConnectFocusTab
 func _gotk4_gtk4_Notebook_ConnectFocusTab(arg0 C.gpointer, arg1 C.GtkNotebookTab, arg2 C.guintptr) (cret C.gboolean) {
-	var f func(object NotebookTab) (ok bool)
+	var f func(tab NotebookTab) (ok bool)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object NotebookTab) (ok bool))
+		f = closure.Func.(func(tab NotebookTab) (ok bool))
 	}
 
-	var _object NotebookTab // out
+	var _tab NotebookTab // out
 
-	_object = NotebookTab(arg1)
+	_tab = NotebookTab(arg1)
 
-	ok := f(_object)
+	ok := f(_tab)
 
 	var _ bool
 
@@ -8058,22 +10420,22 @@ func _gotk4_gtk4_Notebook_ConnectFocusTab(arg0 C.gpointer, arg1 C.GtkNotebookTab
 
 //export _gotk4_gtk4_Notebook_ConnectMoveFocusOut
 func _gotk4_gtk4_Notebook_ConnectMoveFocusOut(arg0 C.gpointer, arg1 C.GtkDirectionType, arg2 C.guintptr) {
-	var f func(object DirectionType)
+	var f func(direction DirectionType)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object DirectionType))
+		f = closure.Func.(func(direction DirectionType))
 	}
 
-	var _object DirectionType // out
+	var _direction DirectionType // out
 
-	_object = DirectionType(arg1)
+	_direction = DirectionType(arg1)
 
-	f(_object)
+	f(_direction)
 }
 
 //export _gotk4_gtk4_Notebook_ConnectPageAdded
@@ -8082,7 +10444,7 @@ func _gotk4_gtk4_Notebook_ConnectPageAdded(arg0 C.gpointer, arg1 *C.GtkWidget, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8120,7 +10482,7 @@ func _gotk4_gtk4_Notebook_ConnectPageRemoved(arg0 C.gpointer, arg1 *C.GtkWidget,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8158,7 +10520,7 @@ func _gotk4_gtk4_Notebook_ConnectPageReordered(arg0 C.gpointer, arg1 *C.GtkWidge
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8192,26 +10554,26 @@ func _gotk4_gtk4_Notebook_ConnectPageReordered(arg0 C.gpointer, arg1 *C.GtkWidge
 
 //export _gotk4_gtk4_Notebook_ConnectReorderTab
 func _gotk4_gtk4_Notebook_ConnectReorderTab(arg0 C.gpointer, arg1 C.GtkDirectionType, arg2 C.gboolean, arg3 C.guintptr) (cret C.gboolean) {
-	var f func(object DirectionType, p0 bool) (ok bool)
+	var f func(direction DirectionType, moveToLast bool) (ok bool)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object DirectionType, p0 bool) (ok bool))
+		f = closure.Func.(func(direction DirectionType, moveToLast bool) (ok bool))
 	}
 
-	var _object DirectionType // out
-	var _p0 bool              // out
+	var _direction DirectionType // out
+	var _moveToLast bool         // out
 
-	_object = DirectionType(arg1)
+	_direction = DirectionType(arg1)
 	if arg2 != 0 {
-		_p0 = true
+		_moveToLast = true
 	}
 
-	ok := f(_object, _p0)
+	ok := f(_direction, _moveToLast)
 
 	var _ bool
 
@@ -8224,24 +10586,24 @@ func _gotk4_gtk4_Notebook_ConnectReorderTab(arg0 C.gpointer, arg1 C.GtkDirection
 
 //export _gotk4_gtk4_Notebook_ConnectSelectPage
 func _gotk4_gtk4_Notebook_ConnectSelectPage(arg0 C.gpointer, arg1 C.gboolean, arg2 C.guintptr) (cret C.gboolean) {
-	var f func(object bool) (ok bool)
+	var f func(moveFocus bool) (ok bool)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object bool) (ok bool))
+		f = closure.Func.(func(moveFocus bool) (ok bool))
 	}
 
-	var _object bool // out
+	var _moveFocus bool // out
 
 	if arg1 != 0 {
-		_object = true
+		_moveFocus = true
 	}
 
-	ok := f(_object)
+	ok := f(_moveFocus)
 
 	var _ bool
 
@@ -8258,7 +10620,7 @@ func _gotk4_gtk4_Notebook_ConnectSwitchPage(arg0 C.gpointer, arg1 *C.GtkWidget, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8296,7 +10658,7 @@ func _gotk4_gtk4_Overlay_ConnectGetChildPosition(arg0 C.gpointer, arg1 *C.GtkWid
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8342,7 +10704,7 @@ func _gotk4_gtk4_Paned_ConnectAcceptPosition(arg0 C.gpointer, arg1 C.guintptr) (
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8366,7 +10728,7 @@ func _gotk4_gtk4_Paned_ConnectCancelPosition(arg0 C.gpointer, arg1 C.guintptr) (
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8390,7 +10752,7 @@ func _gotk4_gtk4_Paned_ConnectCycleChildFocus(arg0 C.gpointer, arg1 C.gboolean, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8420,7 +10782,7 @@ func _gotk4_gtk4_Paned_ConnectCycleHandleFocus(arg0 C.gpointer, arg1 C.gboolean,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8450,7 +10812,7 @@ func _gotk4_gtk4_Paned_ConnectMoveHandle(arg0 C.gpointer, arg1 C.GtkScrollType, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8478,7 +10840,7 @@ func _gotk4_gtk4_Paned_ConnectToggleHandleFocus(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8502,7 +10864,7 @@ func _gotk4_gtk4_PasswordEntry_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8515,7 +10877,7 @@ func _gotk4_gtk4_PasswordEntry_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr)
 //export _gotk4_gtk4_PopoverClass_activate_default
 func _gotk4_gtk4_PopoverClass_activate_default(arg0 *C.GtkPopover) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PopoverOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PopoverOverrides](instance0)
 	if overrides.ActivateDefault == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PopoverOverrides.ActivateDefault, got none")
 	}
@@ -8526,7 +10888,7 @@ func _gotk4_gtk4_PopoverClass_activate_default(arg0 *C.GtkPopover) {
 //export _gotk4_gtk4_PopoverClass_closed
 func _gotk4_gtk4_PopoverClass_closed(arg0 *C.GtkPopover) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PopoverOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PopoverOverrides](instance0)
 	if overrides.Closed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PopoverOverrides.Closed, got none")
 	}
@@ -8540,7 +10902,7 @@ func _gotk4_gtk4_Popover_ConnectActivateDefault(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8556,7 +10918,7 @@ func _gotk4_gtk4_Popover_ConnectClosed(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8569,7 +10931,7 @@ func _gotk4_gtk4_Popover_ConnectClosed(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_PrintOperationClass_begin_print
 func _gotk4_gtk4_PrintOperationClass_begin_print(arg0 *C.GtkPrintOperation, arg1 *C.GtkPrintContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.BeginPrint == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.BeginPrint, got none")
 	}
@@ -8584,7 +10946,7 @@ func _gotk4_gtk4_PrintOperationClass_begin_print(arg0 *C.GtkPrintOperation, arg1
 //export _gotk4_gtk4_PrintOperationClass_custom_widget_apply
 func _gotk4_gtk4_PrintOperationClass_custom_widget_apply(arg0 *C.GtkPrintOperation, arg1 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.CustomWidgetApply == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.CustomWidgetApply, got none")
 	}
@@ -8615,7 +10977,7 @@ func _gotk4_gtk4_PrintOperationClass_custom_widget_apply(arg0 *C.GtkPrintOperati
 //export _gotk4_gtk4_PrintOperationClass_done
 func _gotk4_gtk4_PrintOperationClass_done(arg0 *C.GtkPrintOperation, arg1 C.GtkPrintOperationResult) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.Done == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.Done, got none")
 	}
@@ -8630,7 +10992,7 @@ func _gotk4_gtk4_PrintOperationClass_done(arg0 *C.GtkPrintOperation, arg1 C.GtkP
 //export _gotk4_gtk4_PrintOperationClass_draw_page
 func _gotk4_gtk4_PrintOperationClass_draw_page(arg0 *C.GtkPrintOperation, arg1 *C.GtkPrintContext, arg2 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.DrawPage == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.DrawPage, got none")
 	}
@@ -8647,7 +11009,7 @@ func _gotk4_gtk4_PrintOperationClass_draw_page(arg0 *C.GtkPrintOperation, arg1 *
 //export _gotk4_gtk4_PrintOperationClass_end_print
 func _gotk4_gtk4_PrintOperationClass_end_print(arg0 *C.GtkPrintOperation, arg1 *C.GtkPrintContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.EndPrint == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.EndPrint, got none")
 	}
@@ -8662,7 +11024,7 @@ func _gotk4_gtk4_PrintOperationClass_end_print(arg0 *C.GtkPrintOperation, arg1 *
 //export _gotk4_gtk4_PrintOperationClass_paginate
 func _gotk4_gtk4_PrintOperationClass_paginate(arg0 *C.GtkPrintOperation, arg1 *C.GtkPrintContext) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.Paginate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.Paginate, got none")
 	}
@@ -8685,7 +11047,7 @@ func _gotk4_gtk4_PrintOperationClass_paginate(arg0 *C.GtkPrintOperation, arg1 *C
 //export _gotk4_gtk4_PrintOperationClass_preview
 func _gotk4_gtk4_PrintOperationClass_preview(arg0 *C.GtkPrintOperation, arg1 *C.GtkPrintOperationPreview, arg2 *C.GtkPrintContext, arg3 *C.GtkWindow) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.Preview == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.Preview, got none")
 	}
@@ -8728,7 +11090,7 @@ func _gotk4_gtk4_PrintOperationClass_preview(arg0 *C.GtkPrintOperation, arg1 *C.
 //export _gotk4_gtk4_PrintOperationClass_request_page_setup
 func _gotk4_gtk4_PrintOperationClass_request_page_setup(arg0 *C.GtkPrintOperation, arg1 *C.GtkPrintContext, arg2 C.int, arg3 *C.GtkPageSetup) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.RequestPageSetup == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.RequestPageSetup, got none")
 	}
@@ -8747,7 +11109,7 @@ func _gotk4_gtk4_PrintOperationClass_request_page_setup(arg0 *C.GtkPrintOperatio
 //export _gotk4_gtk4_PrintOperationClass_status_changed
 func _gotk4_gtk4_PrintOperationClass_status_changed(arg0 *C.GtkPrintOperation) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.StatusChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.StatusChanged, got none")
 	}
@@ -8758,7 +11120,7 @@ func _gotk4_gtk4_PrintOperationClass_status_changed(arg0 *C.GtkPrintOperation) {
 //export _gotk4_gtk4_PrintOperationClass_update_custom_widget
 func _gotk4_gtk4_PrintOperationClass_update_custom_widget(arg0 *C.GtkPrintOperation, arg1 *C.GtkWidget, arg2 *C.GtkPageSetup, arg3 *C.GtkPrintSettings) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[PrintOperationOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[PrintOperationOverrides](instance0)
 	if overrides.UpdateCustomWidget == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PrintOperationOverrides.UpdateCustomWidget, got none")
 	}
@@ -8796,7 +11158,7 @@ func _gotk4_gtk4_PrintOperation_ConnectBeginPrint(arg0 C.gpointer, arg1 *C.GtkPr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8816,7 +11178,7 @@ func _gotk4_gtk4_PrintOperation_ConnectCreateCustomWidget(arg0 C.gpointer, arg1 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8840,7 +11202,7 @@ func _gotk4_gtk4_PrintOperation_ConnectCustomWidgetApply(arg0 C.gpointer, arg1 *
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8876,7 +11238,7 @@ func _gotk4_gtk4_PrintOperation_ConnectDone(arg0 C.gpointer, arg1 C.GtkPrintOper
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8896,7 +11258,7 @@ func _gotk4_gtk4_PrintOperation_ConnectDrawPage(arg0 C.gpointer, arg1 *C.GtkPrin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8918,7 +11280,7 @@ func _gotk4_gtk4_PrintOperation_ConnectEndPrint(arg0 C.gpointer, arg1 *C.GtkPrin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8938,7 +11300,7 @@ func _gotk4_gtk4_PrintOperation_ConnectPaginate(arg0 C.gpointer, arg1 *C.GtkPrin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -8966,7 +11328,7 @@ func _gotk4_gtk4_PrintOperation_ConnectPreview(arg0 C.gpointer, arg1 *C.GtkPrint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9016,7 +11378,7 @@ func _gotk4_gtk4_PrintOperation_ConnectRequestPageSetup(arg0 C.gpointer, arg1 *C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9040,7 +11402,7 @@ func _gotk4_gtk4_PrintOperation_ConnectStatusChanged(arg0 C.gpointer, arg1 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9056,7 +11418,7 @@ func _gotk4_gtk4_PrintOperation_ConnectUpdateCustomWidget(arg0 C.gpointer, arg1 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9093,7 +11455,7 @@ func _gotk4_gtk4_PrintOperation_ConnectUpdateCustomWidget(arg0 C.gpointer, arg1 
 //export _gotk4_gtk4_RangeClass_adjust_bounds
 func _gotk4_gtk4_RangeClass_adjust_bounds(arg0 *C.GtkRange, arg1 C.double) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[RangeOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[RangeOverrides](instance0)
 	if overrides.AdjustBounds == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected RangeOverrides.AdjustBounds, got none")
 	}
@@ -9108,7 +11470,7 @@ func _gotk4_gtk4_RangeClass_adjust_bounds(arg0 *C.GtkRange, arg1 C.double) {
 //export _gotk4_gtk4_RangeClass_change_value
 func _gotk4_gtk4_RangeClass_change_value(arg0 *C.GtkRange, arg1 C.GtkScrollType, arg2 C.double) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[RangeOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[RangeOverrides](instance0)
 	if overrides.ChangeValue == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected RangeOverrides.ChangeValue, got none")
 	}
@@ -9133,7 +11495,7 @@ func _gotk4_gtk4_RangeClass_change_value(arg0 *C.GtkRange, arg1 C.GtkScrollType,
 //export _gotk4_gtk4_RangeClass_get_range_border
 func _gotk4_gtk4_RangeClass_get_range_border(arg0 *C.GtkRange, arg1 *C.GtkBorder) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[RangeOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[RangeOverrides](instance0)
 	if overrides.RangeBorder == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected RangeOverrides.RangeBorder, got none")
 	}
@@ -9148,7 +11510,7 @@ func _gotk4_gtk4_RangeClass_get_range_border(arg0 *C.GtkRange, arg1 *C.GtkBorder
 //export _gotk4_gtk4_RangeClass_move_slider
 func _gotk4_gtk4_RangeClass_move_slider(arg0 *C.GtkRange, arg1 C.GtkScrollType) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[RangeOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[RangeOverrides](instance0)
 	if overrides.MoveSlider == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected RangeOverrides.MoveSlider, got none")
 	}
@@ -9163,7 +11525,7 @@ func _gotk4_gtk4_RangeClass_move_slider(arg0 *C.GtkRange, arg1 C.GtkScrollType) 
 //export _gotk4_gtk4_RangeClass_value_changed
 func _gotk4_gtk4_RangeClass_value_changed(arg0 *C.GtkRange) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[RangeOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[RangeOverrides](instance0)
 	if overrides.ValueChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected RangeOverrides.ValueChanged, got none")
 	}
@@ -9177,7 +11539,7 @@ func _gotk4_gtk4_Range_ConnectAdjustBounds(arg0 C.gpointer, arg1 C.gdouble, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9197,7 +11559,7 @@ func _gotk4_gtk4_Range_ConnectChangeValue(arg0 C.gpointer, arg1 C.GtkScrollType,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9227,7 +11589,7 @@ func _gotk4_gtk4_Range_ConnectMoveSlider(arg0 C.gpointer, arg1 C.GtkScrollType, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9247,7 +11609,7 @@ func _gotk4_gtk4_Range_ConnectValueChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9260,7 +11622,7 @@ func _gotk4_gtk4_Range_ConnectValueChanged(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_RecentManagerClass_changed
 func _gotk4_gtk4_RecentManagerClass_changed(arg0 *C.GtkRecentManager) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[RecentManagerOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[RecentManagerOverrides](instance0)
 	if overrides.Changed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected RecentManagerOverrides.Changed, got none")
 	}
@@ -9274,7 +11636,7 @@ func _gotk4_gtk4_RecentManager_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9287,7 +11649,7 @@ func _gotk4_gtk4_RecentManager_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) 
 //export _gotk4_gtk4_ScaleClass_get_layout_offsets
 func _gotk4_gtk4_ScaleClass_get_layout_offsets(arg0 *C.GtkScale, arg1 *C.int, arg2 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ScaleOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ScaleOverrides](instance0)
 	if overrides.LayoutOffsets == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ScaleOverrides.LayoutOffsets, got none")
 	}
@@ -9304,7 +11666,7 @@ func _gotk4_gtk4_ScaleClass_get_layout_offsets(arg0 *C.GtkScale, arg1 *C.int, ar
 //export _gotk4_gtk4_ScaleButtonClass_value_changed
 func _gotk4_gtk4_ScaleButtonClass_value_changed(arg0 *C.GtkScaleButton, arg1 C.double) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ScaleButtonOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ScaleButtonOverrides](instance0)
 	if overrides.ValueChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ScaleButtonOverrides.ValueChanged, got none")
 	}
@@ -9322,7 +11684,7 @@ func _gotk4_gtk4_ScaleButton_ConnectPopdown(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9338,7 +11700,7 @@ func _gotk4_gtk4_ScaleButton_ConnectPopup(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9354,7 +11716,7 @@ func _gotk4_gtk4_ScaleButton_ConnectValueChanged(arg0 C.gpointer, arg1 C.gdouble
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9374,7 +11736,7 @@ func _gotk4_gtk4_ScrolledWindow_ConnectEdgeOvershot(arg0 C.gpointer, arg1 C.GtkP
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9394,7 +11756,7 @@ func _gotk4_gtk4_ScrolledWindow_ConnectEdgeReached(arg0 C.gpointer, arg1 C.GtkPo
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9414,7 +11776,7 @@ func _gotk4_gtk4_ScrolledWindow_ConnectMoveFocusOut(arg0 C.gpointer, arg1 C.GtkD
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9434,7 +11796,7 @@ func _gotk4_gtk4_ScrolledWindow_ConnectScrollChild(arg0 C.gpointer, arg1 C.GtkSc
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9466,7 +11828,7 @@ func _gotk4_gtk4_SearchEntry_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9482,7 +11844,7 @@ func _gotk4_gtk4_SearchEntry_ConnectNextMatch(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9498,7 +11860,7 @@ func _gotk4_gtk4_SearchEntry_ConnectPreviousMatch(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9514,7 +11876,7 @@ func _gotk4_gtk4_SearchEntry_ConnectSearchChanged(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9530,7 +11892,7 @@ func _gotk4_gtk4_SearchEntry_ConnectSearchStarted(arg0 C.gpointer, arg1 C.guintp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9546,7 +11908,7 @@ func _gotk4_gtk4_SearchEntry_ConnectStopSearch(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9558,22 +11920,22 @@ func _gotk4_gtk4_SearchEntry_ConnectStopSearch(arg0 C.gpointer, arg1 C.guintptr)
 
 //export _gotk4_gtk4_ShortcutsSection_ConnectChangeCurrentPage
 func _gotk4_gtk4_ShortcutsSection_ConnectChangeCurrentPage(arg0 C.gpointer, arg1 C.gint, arg2 C.guintptr) (cret C.gboolean) {
-	var f func(object int) (ok bool)
+	var f func(offset int) (ok bool)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
-		f = closure.Func.(func(object int) (ok bool))
+		f = closure.Func.(func(offset int) (ok bool))
 	}
 
-	var _object int // out
+	var _offset int // out
 
-	_object = int(arg1)
+	_offset = int(arg1)
 
-	ok := f(_object)
+	ok := f(_offset)
 
 	var _ bool
 
@@ -9590,7 +11952,7 @@ func _gotk4_gtk4_ShortcutsWindow_ConnectClose(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9606,7 +11968,7 @@ func _gotk4_gtk4_ShortcutsWindow_ConnectSearch(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9622,7 +11984,7 @@ func _gotk4_gtk4_SignalListItemFactory_ConnectBind(arg0 C.gpointer, arg1 *C.GObj
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9642,7 +12004,7 @@ func _gotk4_gtk4_SignalListItemFactory_ConnectSetup(arg0 C.gpointer, arg1 *C.GOb
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9662,7 +12024,7 @@ func _gotk4_gtk4_SignalListItemFactory_ConnectTeardown(arg0 C.gpointer, arg1 *C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9682,7 +12044,7 @@ func _gotk4_gtk4_SignalListItemFactory_ConnectUnbind(arg0 C.gpointer, arg1 *C.GO
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9699,7 +12061,7 @@ func _gotk4_gtk4_SignalListItemFactory_ConnectUnbind(arg0 C.gpointer, arg1 *C.GO
 //export _gotk4_gtk4_SorterClass_compare
 func _gotk4_gtk4_SorterClass_compare(arg0 *C.GtkSorter, arg1 C.gpointer, arg2 C.gpointer) (cret C.GtkOrdering) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[SorterOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[SorterOverrides](instance0)
 	if overrides.Compare == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SorterOverrides.Compare, got none")
 	}
@@ -9722,7 +12084,7 @@ func _gotk4_gtk4_SorterClass_compare(arg0 *C.GtkSorter, arg1 C.gpointer, arg2 C.
 //export _gotk4_gtk4_SorterClass_get_order
 func _gotk4_gtk4_SorterClass_get_order(arg0 *C.GtkSorter) (cret C.GtkSorterOrder) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[SorterOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[SorterOverrides](instance0)
 	if overrides.Order == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected SorterOverrides.Order, got none")
 	}
@@ -9742,7 +12104,7 @@ func _gotk4_gtk4_Sorter_ConnectChanged(arg0 C.gpointer, arg1 C.GtkSorterChange, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9762,7 +12124,7 @@ func _gotk4_gtk4_SpinButton_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9778,7 +12140,7 @@ func _gotk4_gtk4_SpinButton_ConnectChangeValue(arg0 C.gpointer, arg1 C.GtkScroll
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9798,7 +12160,7 @@ func _gotk4_gtk4_SpinButton_ConnectOutput(arg0 C.gpointer, arg1 C.guintptr) (cre
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9822,7 +12184,7 @@ func _gotk4_gtk4_SpinButton_ConnectValueChanged(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9838,7 +12200,7 @@ func _gotk4_gtk4_SpinButton_ConnectWrapped(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9854,7 +12216,7 @@ func _gotk4_gtk4_Statusbar_ConnectTextPopped(arg0 C.gpointer, arg1 C.guint, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9876,7 +12238,7 @@ func _gotk4_gtk4_Statusbar_ConnectTextPushed(arg0 C.gpointer, arg1 C.guint, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9895,12 +12257,32 @@ func _gotk4_gtk4_Statusbar_ConnectTextPushed(arg0 C.gpointer, arg1 C.guint, arg2
 //export _gotk4_gtk4_StyleContextClass_changed
 func _gotk4_gtk4_StyleContextClass_changed(arg0 *C.GtkStyleContext) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[StyleContextOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[StyleContextOverrides](instance0)
 	if overrides.Changed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected StyleContextOverrides.Changed, got none")
 	}
 
 	overrides.Changed()
+}
+
+//export _gotk4_gtk4_Svg_ConnectError
+func _gotk4_gtk4_Svg_ConnectError(arg0 C.gpointer, arg1 *C.GError, arg2 C.guintptr) {
+	var f func(err error)
+	{
+		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
+		if closure == nil {
+			return
+		}
+		defer closure.TryRepanic()
+
+		f = closure.Func.(func(err error))
+	}
+
+	var _err error // out
+
+	_err = gerror.Take(unsafe.Pointer(arg1))
+
+	f(_err)
 }
 
 //export _gotk4_gtk4_Switch_ConnectActivate
@@ -9909,7 +12291,7 @@ func _gotk4_gtk4_Switch_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9925,7 +12307,7 @@ func _gotk4_gtk4_Switch_ConnectStateSet(arg0 C.gpointer, arg1 C.gboolean, arg2 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9955,7 +12337,7 @@ func _gotk4_gtk4_Text_ConnectActivate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9971,7 +12353,7 @@ func _gotk4_gtk4_Text_ConnectBackspace(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -9987,7 +12369,7 @@ func _gotk4_gtk4_Text_ConnectCopyClipboard(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10003,7 +12385,7 @@ func _gotk4_gtk4_Text_ConnectCutClipboard(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10019,7 +12401,7 @@ func _gotk4_gtk4_Text_ConnectDeleteFromCursor(arg0 C.gpointer, arg1 C.GtkDeleteT
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10041,7 +12423,7 @@ func _gotk4_gtk4_Text_ConnectInsertAtCursor(arg0 C.gpointer, arg1 *C.gchar, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10061,7 +12443,7 @@ func _gotk4_gtk4_Text_ConnectInsertEmoji(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10077,7 +12459,7 @@ func _gotk4_gtk4_Text_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementStep,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10103,7 +12485,7 @@ func _gotk4_gtk4_Text_ConnectPasteClipboard(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10119,7 +12501,7 @@ func _gotk4_gtk4_Text_ConnectPreeditChanged(arg0 C.gpointer, arg1 *C.gchar, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10139,7 +12521,7 @@ func _gotk4_gtk4_Text_ConnectToggleOverwrite(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10152,7 +12534,7 @@ func _gotk4_gtk4_Text_ConnectToggleOverwrite(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_TextBufferClass_apply_tag
 func _gotk4_gtk4_TextBufferClass_apply_tag(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextTag, arg2 *C.GtkTextIter, arg3 *C.GtkTextIter) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.ApplyTag == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.ApplyTag, got none")
 	}
@@ -10171,7 +12553,7 @@ func _gotk4_gtk4_TextBufferClass_apply_tag(arg0 *C.GtkTextBuffer, arg1 *C.GtkTex
 //export _gotk4_gtk4_TextBufferClass_begin_user_action
 func _gotk4_gtk4_TextBufferClass_begin_user_action(arg0 *C.GtkTextBuffer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.BeginUserAction == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.BeginUserAction, got none")
 	}
@@ -10182,7 +12564,7 @@ func _gotk4_gtk4_TextBufferClass_begin_user_action(arg0 *C.GtkTextBuffer) {
 //export _gotk4_gtk4_TextBufferClass_changed
 func _gotk4_gtk4_TextBufferClass_changed(arg0 *C.GtkTextBuffer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.Changed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.Changed, got none")
 	}
@@ -10193,7 +12575,7 @@ func _gotk4_gtk4_TextBufferClass_changed(arg0 *C.GtkTextBuffer) {
 //export _gotk4_gtk4_TextBufferClass_delete_range
 func _gotk4_gtk4_TextBufferClass_delete_range(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextIter, arg2 *C.GtkTextIter) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.DeleteRange == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.DeleteRange, got none")
 	}
@@ -10210,7 +12592,7 @@ func _gotk4_gtk4_TextBufferClass_delete_range(arg0 *C.GtkTextBuffer, arg1 *C.Gtk
 //export _gotk4_gtk4_TextBufferClass_end_user_action
 func _gotk4_gtk4_TextBufferClass_end_user_action(arg0 *C.GtkTextBuffer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.EndUserAction == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.EndUserAction, got none")
 	}
@@ -10221,7 +12603,7 @@ func _gotk4_gtk4_TextBufferClass_end_user_action(arg0 *C.GtkTextBuffer) {
 //export _gotk4_gtk4_TextBufferClass_insert_child_anchor
 func _gotk4_gtk4_TextBufferClass_insert_child_anchor(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextIter, arg2 *C.GtkTextChildAnchor) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.InsertChildAnchor == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.InsertChildAnchor, got none")
 	}
@@ -10238,7 +12620,7 @@ func _gotk4_gtk4_TextBufferClass_insert_child_anchor(arg0 *C.GtkTextBuffer, arg1
 //export _gotk4_gtk4_TextBufferClass_insert_paintable
 func _gotk4_gtk4_TextBufferClass_insert_paintable(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextIter, arg2 *C.GdkPaintable) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.InsertPaintable == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.InsertPaintable, got none")
 	}
@@ -10271,7 +12653,7 @@ func _gotk4_gtk4_TextBufferClass_insert_paintable(arg0 *C.GtkTextBuffer, arg1 *C
 //export _gotk4_gtk4_TextBufferClass_insert_text
 func _gotk4_gtk4_TextBufferClass_insert_text(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextIter, arg2 *C.char, arg3 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.InsertText == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.InsertText, got none")
 	}
@@ -10290,7 +12672,7 @@ func _gotk4_gtk4_TextBufferClass_insert_text(arg0 *C.GtkTextBuffer, arg1 *C.GtkT
 //export _gotk4_gtk4_TextBufferClass_mark_deleted
 func _gotk4_gtk4_TextBufferClass_mark_deleted(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextMark) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.MarkDeleted == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.MarkDeleted, got none")
 	}
@@ -10305,7 +12687,7 @@ func _gotk4_gtk4_TextBufferClass_mark_deleted(arg0 *C.GtkTextBuffer, arg1 *C.Gtk
 //export _gotk4_gtk4_TextBufferClass_mark_set
 func _gotk4_gtk4_TextBufferClass_mark_set(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextIter, arg2 *C.GtkTextMark) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.MarkSet == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.MarkSet, got none")
 	}
@@ -10322,7 +12704,7 @@ func _gotk4_gtk4_TextBufferClass_mark_set(arg0 *C.GtkTextBuffer, arg1 *C.GtkText
 //export _gotk4_gtk4_TextBufferClass_modified_changed
 func _gotk4_gtk4_TextBufferClass_modified_changed(arg0 *C.GtkTextBuffer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.ModifiedChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.ModifiedChanged, got none")
 	}
@@ -10333,7 +12715,7 @@ func _gotk4_gtk4_TextBufferClass_modified_changed(arg0 *C.GtkTextBuffer) {
 //export _gotk4_gtk4_TextBufferClass_paste_done
 func _gotk4_gtk4_TextBufferClass_paste_done(arg0 *C.GtkTextBuffer, arg1 *C.GdkClipboard) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.PasteDone == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.PasteDone, got none")
 	}
@@ -10353,7 +12735,7 @@ func _gotk4_gtk4_TextBufferClass_paste_done(arg0 *C.GtkTextBuffer, arg1 *C.GdkCl
 //export _gotk4_gtk4_TextBufferClass_redo
 func _gotk4_gtk4_TextBufferClass_redo(arg0 *C.GtkTextBuffer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.Redo == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.Redo, got none")
 	}
@@ -10364,7 +12746,7 @@ func _gotk4_gtk4_TextBufferClass_redo(arg0 *C.GtkTextBuffer) {
 //export _gotk4_gtk4_TextBufferClass_remove_tag
 func _gotk4_gtk4_TextBufferClass_remove_tag(arg0 *C.GtkTextBuffer, arg1 *C.GtkTextTag, arg2 *C.GtkTextIter, arg3 *C.GtkTextIter) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.RemoveTag == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.RemoveTag, got none")
 	}
@@ -10383,7 +12765,7 @@ func _gotk4_gtk4_TextBufferClass_remove_tag(arg0 *C.GtkTextBuffer, arg1 *C.GtkTe
 //export _gotk4_gtk4_TextBufferClass_undo
 func _gotk4_gtk4_TextBufferClass_undo(arg0 *C.GtkTextBuffer) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextBufferOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextBufferOverrides](instance0)
 	if overrides.Undo == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextBufferOverrides.Undo, got none")
 	}
@@ -10397,7 +12779,7 @@ func _gotk4_gtk4_TextBuffer_ConnectApplyTag(arg0 C.gpointer, arg1 *C.GtkTextTag,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10421,7 +12803,7 @@ func _gotk4_gtk4_TextBuffer_ConnectBeginUserAction(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10437,7 +12819,7 @@ func _gotk4_gtk4_TextBuffer_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10453,7 +12835,7 @@ func _gotk4_gtk4_TextBuffer_ConnectDeleteRange(arg0 C.gpointer, arg1 *C.GtkTextI
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10475,7 +12857,7 @@ func _gotk4_gtk4_TextBuffer_ConnectEndUserAction(arg0 C.gpointer, arg1 C.guintpt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10491,7 +12873,7 @@ func _gotk4_gtk4_TextBuffer_ConnectInsertChildAnchor(arg0 C.gpointer, arg1 *C.Gt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10513,7 +12895,7 @@ func _gotk4_gtk4_TextBuffer_ConnectInsertPaintable(arg0 C.gpointer, arg1 *C.GtkT
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10551,7 +12933,7 @@ func _gotk4_gtk4_TextBuffer_ConnectInsertText(arg0 C.gpointer, arg1 *C.GtkTextIt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10575,7 +12957,7 @@ func _gotk4_gtk4_TextBuffer_ConnectMarkDeleted(arg0 C.gpointer, arg1 *C.GtkTextM
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10595,7 +12977,7 @@ func _gotk4_gtk4_TextBuffer_ConnectMarkSet(arg0 C.gpointer, arg1 *C.GtkTextIter,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10617,7 +12999,7 @@ func _gotk4_gtk4_TextBuffer_ConnectModifiedChanged(arg0 C.gpointer, arg1 C.guint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10633,7 +13015,7 @@ func _gotk4_gtk4_TextBuffer_ConnectPasteDone(arg0 C.gpointer, arg1 *C.GdkClipboa
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10658,7 +13040,7 @@ func _gotk4_gtk4_TextBuffer_ConnectRedo(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10674,7 +13056,7 @@ func _gotk4_gtk4_TextBuffer_ConnectRemoveTag(arg0 C.gpointer, arg1 *C.GtkTextTag
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10698,7 +13080,7 @@ func _gotk4_gtk4_TextBuffer_ConnectUndo(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10714,7 +13096,7 @@ func _gotk4_gtk4_TextTagTable_ConnectTagAdded(arg0 C.gpointer, arg1 *C.GtkTextTa
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10734,7 +13116,7 @@ func _gotk4_gtk4_TextTagTable_ConnectTagChanged(arg0 C.gpointer, arg1 *C.GtkText
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10758,7 +13140,7 @@ func _gotk4_gtk4_TextTagTable_ConnectTagRemoved(arg0 C.gpointer, arg1 *C.GtkText
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10775,7 +13157,7 @@ func _gotk4_gtk4_TextTagTable_ConnectTagRemoved(arg0 C.gpointer, arg1 *C.GtkText
 //export _gotk4_gtk4_TextViewClass_backspace
 func _gotk4_gtk4_TextViewClass_backspace(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.Backspace == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.Backspace, got none")
 	}
@@ -10786,7 +13168,7 @@ func _gotk4_gtk4_TextViewClass_backspace(arg0 *C.GtkTextView) {
 //export _gotk4_gtk4_TextViewClass_copy_clipboard
 func _gotk4_gtk4_TextViewClass_copy_clipboard(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.CopyClipboard == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.CopyClipboard, got none")
 	}
@@ -10797,7 +13179,7 @@ func _gotk4_gtk4_TextViewClass_copy_clipboard(arg0 *C.GtkTextView) {
 //export _gotk4_gtk4_TextViewClass_cut_clipboard
 func _gotk4_gtk4_TextViewClass_cut_clipboard(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.CutClipboard == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.CutClipboard, got none")
 	}
@@ -10808,7 +13190,7 @@ func _gotk4_gtk4_TextViewClass_cut_clipboard(arg0 *C.GtkTextView) {
 //export _gotk4_gtk4_TextViewClass_delete_from_cursor
 func _gotk4_gtk4_TextViewClass_delete_from_cursor(arg0 *C.GtkTextView, arg1 C.GtkDeleteType, arg2 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.DeleteFromCursor == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.DeleteFromCursor, got none")
 	}
@@ -10825,7 +13207,7 @@ func _gotk4_gtk4_TextViewClass_delete_from_cursor(arg0 *C.GtkTextView, arg1 C.Gt
 //export _gotk4_gtk4_TextViewClass_extend_selection
 func _gotk4_gtk4_TextViewClass_extend_selection(arg0 *C.GtkTextView, arg1 C.GtkTextExtendSelection, arg2 *C.GtkTextIter, arg3 *C.GtkTextIter, arg4 *C.GtkTextIter) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.ExtendSelection == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.ExtendSelection, got none")
 	}
@@ -10854,7 +13236,7 @@ func _gotk4_gtk4_TextViewClass_extend_selection(arg0 *C.GtkTextView, arg1 C.GtkT
 //export _gotk4_gtk4_TextViewClass_insert_at_cursor
 func _gotk4_gtk4_TextViewClass_insert_at_cursor(arg0 *C.GtkTextView, arg1 *C.char) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.InsertAtCursor == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.InsertAtCursor, got none")
 	}
@@ -10869,7 +13251,7 @@ func _gotk4_gtk4_TextViewClass_insert_at_cursor(arg0 *C.GtkTextView, arg1 *C.cha
 //export _gotk4_gtk4_TextViewClass_insert_emoji
 func _gotk4_gtk4_TextViewClass_insert_emoji(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.InsertEmoji == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.InsertEmoji, got none")
 	}
@@ -10880,7 +13262,7 @@ func _gotk4_gtk4_TextViewClass_insert_emoji(arg0 *C.GtkTextView) {
 //export _gotk4_gtk4_TextViewClass_move_cursor
 func _gotk4_gtk4_TextViewClass_move_cursor(arg0 *C.GtkTextView, arg1 C.GtkMovementStep, arg2 C.int, arg3 C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.MoveCursor == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.MoveCursor, got none")
 	}
@@ -10901,7 +13283,7 @@ func _gotk4_gtk4_TextViewClass_move_cursor(arg0 *C.GtkTextView, arg1 C.GtkMoveme
 //export _gotk4_gtk4_TextViewClass_paste_clipboard
 func _gotk4_gtk4_TextViewClass_paste_clipboard(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.PasteClipboard == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.PasteClipboard, got none")
 	}
@@ -10912,7 +13294,7 @@ func _gotk4_gtk4_TextViewClass_paste_clipboard(arg0 *C.GtkTextView) {
 //export _gotk4_gtk4_TextViewClass_set_anchor
 func _gotk4_gtk4_TextViewClass_set_anchor(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.SetAnchor == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.SetAnchor, got none")
 	}
@@ -10923,7 +13305,7 @@ func _gotk4_gtk4_TextViewClass_set_anchor(arg0 *C.GtkTextView) {
 //export _gotk4_gtk4_TextViewClass_snapshot_layer
 func _gotk4_gtk4_TextViewClass_snapshot_layer(arg0 *C.GtkTextView, arg1 C.GtkTextViewLayer, arg2 *C.GtkSnapshot) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.SnapshotLayer == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.SnapshotLayer, got none")
 	}
@@ -10940,7 +13322,7 @@ func _gotk4_gtk4_TextViewClass_snapshot_layer(arg0 *C.GtkTextView, arg1 C.GtkTex
 //export _gotk4_gtk4_TextViewClass_toggle_overwrite
 func _gotk4_gtk4_TextViewClass_toggle_overwrite(arg0 *C.GtkTextView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TextViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TextViewOverrides](instance0)
 	if overrides.ToggleOverwrite == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TextViewOverrides.ToggleOverwrite, got none")
 	}
@@ -10954,7 +13336,7 @@ func _gotk4_gtk4_TextView_ConnectBackspace(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10970,7 +13352,7 @@ func _gotk4_gtk4_TextView_ConnectCopyClipboard(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -10986,7 +13368,7 @@ func _gotk4_gtk4_TextView_ConnectCutClipboard(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11002,7 +13384,7 @@ func _gotk4_gtk4_TextView_ConnectDeleteFromCursor(arg0 C.gpointer, arg1 C.GtkDel
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11024,7 +13406,7 @@ func _gotk4_gtk4_TextView_ConnectExtendSelection(arg0 C.gpointer, arg1 C.GtkText
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11058,7 +13440,7 @@ func _gotk4_gtk4_TextView_ConnectInsertAtCursor(arg0 C.gpointer, arg1 *C.gchar, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11078,7 +13460,7 @@ func _gotk4_gtk4_TextView_ConnectInsertEmoji(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11094,7 +13476,7 @@ func _gotk4_gtk4_TextView_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementS
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11120,7 +13502,7 @@ func _gotk4_gtk4_TextView_ConnectMoveViewport(arg0 C.gpointer, arg1 C.GtkScrollS
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11142,7 +13524,7 @@ func _gotk4_gtk4_TextView_ConnectPasteClipboard(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11158,7 +13540,7 @@ func _gotk4_gtk4_TextView_ConnectPreeditChanged(arg0 C.gpointer, arg1 *C.gchar, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11178,7 +13560,7 @@ func _gotk4_gtk4_TextView_ConnectSelectAll(arg0 C.gpointer, arg1 C.gboolean, arg
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11200,7 +13582,7 @@ func _gotk4_gtk4_TextView_ConnectSetAnchor(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11216,7 +13598,7 @@ func _gotk4_gtk4_TextView_ConnectToggleCursorVisible(arg0 C.gpointer, arg1 C.gui
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11232,7 +13614,7 @@ func _gotk4_gtk4_TextView_ConnectToggleOverwrite(arg0 C.gpointer, arg1 C.guintpt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11245,7 +13627,7 @@ func _gotk4_gtk4_TextView_ConnectToggleOverwrite(arg0 C.gpointer, arg1 C.guintpt
 //export _gotk4_gtk4_ToggleButtonClass_toggled
 func _gotk4_gtk4_ToggleButtonClass_toggled(arg0 *C.GtkToggleButton) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ToggleButtonOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ToggleButtonOverrides](instance0)
 	if overrides.Toggled == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ToggleButtonOverrides.Toggled, got none")
 	}
@@ -11259,7 +13641,7 @@ func _gotk4_gtk4_ToggleButton_ConnectToggled(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11272,7 +13654,7 @@ func _gotk4_gtk4_ToggleButton_ConnectToggled(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_TreeModelFilterClass_modify
 func _gotk4_gtk4_TreeModelFilterClass_modify(arg0 *C.GtkTreeModelFilter, arg1 *C.GtkTreeModel, arg2 *C.GtkTreeIter, arg3 *C.GValue, arg4 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeModelFilterOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeModelFilterOverrides](instance0)
 	if overrides.Modify == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelFilterOverrides.Modify, got none")
 	}
@@ -11309,7 +13691,7 @@ func _gotk4_gtk4_TreeModelFilterClass_modify(arg0 *C.GtkTreeModelFilter, arg1 *C
 //export _gotk4_gtk4_TreeModelFilterClass_visible
 func _gotk4_gtk4_TreeModelFilterClass_visible(arg0 *C.GtkTreeModelFilter, arg1 *C.GtkTreeModel, arg2 *C.GtkTreeIter) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeModelFilterOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeModelFilterOverrides](instance0)
 	if overrides.Visible == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeModelFilterOverrides.Visible, got none")
 	}
@@ -11353,7 +13735,7 @@ func _gotk4_gtk4_TreeSelection_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11366,7 +13748,7 @@ func _gotk4_gtk4_TreeSelection_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) 
 //export _gotk4_gtk4_TreeViewClass_columns_changed
 func _gotk4_gtk4_TreeViewClass_columns_changed(arg0 *C.GtkTreeView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.ColumnsChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.ColumnsChanged, got none")
 	}
@@ -11377,7 +13759,7 @@ func _gotk4_gtk4_TreeViewClass_columns_changed(arg0 *C.GtkTreeView) {
 //export _gotk4_gtk4_TreeViewClass_cursor_changed
 func _gotk4_gtk4_TreeViewClass_cursor_changed(arg0 *C.GtkTreeView) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.CursorChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.CursorChanged, got none")
 	}
@@ -11388,7 +13770,7 @@ func _gotk4_gtk4_TreeViewClass_cursor_changed(arg0 *C.GtkTreeView) {
 //export _gotk4_gtk4_TreeViewClass_expand_collapse_cursor_row
 func _gotk4_gtk4_TreeViewClass_expand_collapse_cursor_row(arg0 *C.GtkTreeView, arg1 C.gboolean, arg2 C.gboolean, arg3 C.gboolean) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.ExpandCollapseCursorRow == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.ExpandCollapseCursorRow, got none")
 	}
@@ -11421,7 +13803,7 @@ func _gotk4_gtk4_TreeViewClass_expand_collapse_cursor_row(arg0 *C.GtkTreeView, a
 //export _gotk4_gtk4_TreeViewClass_move_cursor
 func _gotk4_gtk4_TreeViewClass_move_cursor(arg0 *C.GtkTreeView, arg1 C.GtkMovementStep, arg2 C.int, arg3 C.gboolean, arg4 C.gboolean) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.MoveCursor == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.MoveCursor, got none")
 	}
@@ -11454,7 +13836,7 @@ func _gotk4_gtk4_TreeViewClass_move_cursor(arg0 *C.GtkTreeView, arg1 C.GtkMoveme
 //export _gotk4_gtk4_TreeViewClass_row_activated
 func _gotk4_gtk4_TreeViewClass_row_activated(arg0 *C.GtkTreeView, arg1 *C.GtkTreePath, arg2 *C.GtkTreeViewColumn) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.RowActivated == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.RowActivated, got none")
 	}
@@ -11473,7 +13855,7 @@ func _gotk4_gtk4_TreeViewClass_row_activated(arg0 *C.GtkTreeView, arg1 *C.GtkTre
 //export _gotk4_gtk4_TreeViewClass_row_collapsed
 func _gotk4_gtk4_TreeViewClass_row_collapsed(arg0 *C.GtkTreeView, arg1 *C.GtkTreeIter, arg2 *C.GtkTreePath) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.RowCollapsed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.RowCollapsed, got none")
 	}
@@ -11490,7 +13872,7 @@ func _gotk4_gtk4_TreeViewClass_row_collapsed(arg0 *C.GtkTreeView, arg1 *C.GtkTre
 //export _gotk4_gtk4_TreeViewClass_row_expanded
 func _gotk4_gtk4_TreeViewClass_row_expanded(arg0 *C.GtkTreeView, arg1 *C.GtkTreeIter, arg2 *C.GtkTreePath) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.RowExpanded == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.RowExpanded, got none")
 	}
@@ -11507,7 +13889,7 @@ func _gotk4_gtk4_TreeViewClass_row_expanded(arg0 *C.GtkTreeView, arg1 *C.GtkTree
 //export _gotk4_gtk4_TreeViewClass_select_all
 func _gotk4_gtk4_TreeViewClass_select_all(arg0 *C.GtkTreeView) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.SelectAll == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.SelectAll, got none")
 	}
@@ -11526,7 +13908,7 @@ func _gotk4_gtk4_TreeViewClass_select_all(arg0 *C.GtkTreeView) (cret C.gboolean)
 //export _gotk4_gtk4_TreeViewClass_select_cursor_parent
 func _gotk4_gtk4_TreeViewClass_select_cursor_parent(arg0 *C.GtkTreeView) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.SelectCursorParent == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.SelectCursorParent, got none")
 	}
@@ -11545,7 +13927,7 @@ func _gotk4_gtk4_TreeViewClass_select_cursor_parent(arg0 *C.GtkTreeView) (cret C
 //export _gotk4_gtk4_TreeViewClass_select_cursor_row
 func _gotk4_gtk4_TreeViewClass_select_cursor_row(arg0 *C.GtkTreeView, arg1 C.gboolean) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.SelectCursorRow == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.SelectCursorRow, got none")
 	}
@@ -11570,7 +13952,7 @@ func _gotk4_gtk4_TreeViewClass_select_cursor_row(arg0 *C.GtkTreeView, arg1 C.gbo
 //export _gotk4_gtk4_TreeViewClass_start_interactive_search
 func _gotk4_gtk4_TreeViewClass_start_interactive_search(arg0 *C.GtkTreeView) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.StartInteractiveSearch == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.StartInteractiveSearch, got none")
 	}
@@ -11589,7 +13971,7 @@ func _gotk4_gtk4_TreeViewClass_start_interactive_search(arg0 *C.GtkTreeView) (cr
 //export _gotk4_gtk4_TreeViewClass_test_collapse_row
 func _gotk4_gtk4_TreeViewClass_test_collapse_row(arg0 *C.GtkTreeView, arg1 *C.GtkTreeIter, arg2 *C.GtkTreePath) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.TestCollapseRow == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.TestCollapseRow, got none")
 	}
@@ -11614,7 +13996,7 @@ func _gotk4_gtk4_TreeViewClass_test_collapse_row(arg0 *C.GtkTreeView, arg1 *C.Gt
 //export _gotk4_gtk4_TreeViewClass_test_expand_row
 func _gotk4_gtk4_TreeViewClass_test_expand_row(arg0 *C.GtkTreeView, arg1 *C.GtkTreeIter, arg2 *C.GtkTreePath) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.TestExpandRow == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.TestExpandRow, got none")
 	}
@@ -11639,7 +14021,7 @@ func _gotk4_gtk4_TreeViewClass_test_expand_row(arg0 *C.GtkTreeView, arg1 *C.GtkT
 //export _gotk4_gtk4_TreeViewClass_toggle_cursor_row
 func _gotk4_gtk4_TreeViewClass_toggle_cursor_row(arg0 *C.GtkTreeView) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.ToggleCursorRow == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.ToggleCursorRow, got none")
 	}
@@ -11658,7 +14040,7 @@ func _gotk4_gtk4_TreeViewClass_toggle_cursor_row(arg0 *C.GtkTreeView) (cret C.gb
 //export _gotk4_gtk4_TreeViewClass_unselect_all
 func _gotk4_gtk4_TreeViewClass_unselect_all(arg0 *C.GtkTreeView) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[TreeViewOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[TreeViewOverrides](instance0)
 	if overrides.UnselectAll == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected TreeViewOverrides.UnselectAll, got none")
 	}
@@ -11680,7 +14062,7 @@ func _gotk4_gtk4_TreeView_ConnectColumnsChanged(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11696,7 +14078,7 @@ func _gotk4_gtk4_TreeView_ConnectCursorChanged(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11712,7 +14094,7 @@ func _gotk4_gtk4_TreeView_ConnectExpandCollapseCursorRow(arg0 C.gpointer, arg1 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg4))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11750,7 +14132,7 @@ func _gotk4_gtk4_TreeView_ConnectMoveCursor(arg0 C.gpointer, arg1 C.GtkMovementS
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11788,7 +14170,7 @@ func _gotk4_gtk4_TreeView_ConnectRowActivated(arg0 C.gpointer, arg1 *C.GtkTreePa
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11812,7 +14194,7 @@ func _gotk4_gtk4_TreeView_ConnectRowCollapsed(arg0 C.gpointer, arg1 *C.GtkTreeIt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11834,7 +14216,7 @@ func _gotk4_gtk4_TreeView_ConnectRowExpanded(arg0 C.gpointer, arg1 *C.GtkTreeIte
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11856,7 +14238,7 @@ func _gotk4_gtk4_TreeView_ConnectSelectAll(arg0 C.gpointer, arg1 C.guintptr) (cr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11880,7 +14262,7 @@ func _gotk4_gtk4_TreeView_ConnectSelectCursorParent(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11904,7 +14286,7 @@ func _gotk4_gtk4_TreeView_ConnectSelectCursorRow(arg0 C.gpointer, arg1 C.gboolea
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11934,7 +14316,7 @@ func _gotk4_gtk4_TreeView_ConnectStartInteractiveSearch(arg0 C.gpointer, arg1 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11958,7 +14340,7 @@ func _gotk4_gtk4_TreeView_ConnectTestCollapseRow(arg0 C.gpointer, arg1 *C.GtkTre
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -11988,7 +14370,7 @@ func _gotk4_gtk4_TreeView_ConnectTestExpandRow(arg0 C.gpointer, arg1 *C.GtkTreeI
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12018,7 +14400,7 @@ func _gotk4_gtk4_TreeView_ConnectToggleCursorRow(arg0 C.gpointer, arg1 C.guintpt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12042,7 +14424,7 @@ func _gotk4_gtk4_TreeView_ConnectUnselectAll(arg0 C.gpointer, arg1 C.guintptr) (
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12066,7 +14448,7 @@ func _gotk4_gtk4_TreeViewColumn_ConnectClicked(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12079,7 +14461,7 @@ func _gotk4_gtk4_TreeViewColumn_ConnectClicked(arg0 C.gpointer, arg1 C.guintptr)
 //export _gotk4_gtk4_WidgetClass_contains
 func _gotk4_gtk4_WidgetClass_contains(arg0 *C.GtkWidget, arg1 C.double, arg2 C.double) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Contains == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Contains, got none")
 	}
@@ -12104,7 +14486,7 @@ func _gotk4_gtk4_WidgetClass_contains(arg0 *C.GtkWidget, arg1 C.double, arg2 C.d
 //export _gotk4_gtk4_WidgetClass_direction_changed
 func _gotk4_gtk4_WidgetClass_direction_changed(arg0 *C.GtkWidget, arg1 C.GtkTextDirection) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.DirectionChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.DirectionChanged, got none")
 	}
@@ -12119,7 +14501,7 @@ func _gotk4_gtk4_WidgetClass_direction_changed(arg0 *C.GtkWidget, arg1 C.GtkText
 //export _gotk4_gtk4_WidgetClass_focus
 func _gotk4_gtk4_WidgetClass_focus(arg0 *C.GtkWidget, arg1 C.GtkDirectionType) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Focus == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Focus, got none")
 	}
@@ -12142,7 +14524,7 @@ func _gotk4_gtk4_WidgetClass_focus(arg0 *C.GtkWidget, arg1 C.GtkDirectionType) (
 //export _gotk4_gtk4_WidgetClass_get_request_mode
 func _gotk4_gtk4_WidgetClass_get_request_mode(arg0 *C.GtkWidget) (cret C.GtkSizeRequestMode) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.RequestMode == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.RequestMode, got none")
 	}
@@ -12159,7 +14541,7 @@ func _gotk4_gtk4_WidgetClass_get_request_mode(arg0 *C.GtkWidget) (cret C.GtkSize
 //export _gotk4_gtk4_WidgetClass_grab_focus
 func _gotk4_gtk4_WidgetClass_grab_focus(arg0 *C.GtkWidget) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.GrabFocus == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.GrabFocus, got none")
 	}
@@ -12178,7 +14560,7 @@ func _gotk4_gtk4_WidgetClass_grab_focus(arg0 *C.GtkWidget) (cret C.gboolean) {
 //export _gotk4_gtk4_WidgetClass_hide
 func _gotk4_gtk4_WidgetClass_hide(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Hide == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Hide, got none")
 	}
@@ -12189,7 +14571,7 @@ func _gotk4_gtk4_WidgetClass_hide(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_keynav_failed
 func _gotk4_gtk4_WidgetClass_keynav_failed(arg0 *C.GtkWidget, arg1 C.GtkDirectionType) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.KeynavFailed == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.KeynavFailed, got none")
 	}
@@ -12212,7 +14594,7 @@ func _gotk4_gtk4_WidgetClass_keynav_failed(arg0 *C.GtkWidget, arg1 C.GtkDirectio
 //export _gotk4_gtk4_WidgetClass_map
 func _gotk4_gtk4_WidgetClass_map(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Map == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Map, got none")
 	}
@@ -12223,7 +14605,7 @@ func _gotk4_gtk4_WidgetClass_map(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_measure
 func _gotk4_gtk4_WidgetClass_measure(arg0 *C.GtkWidget, arg1 C.GtkOrientation, arg2 C.int, arg3 *C.int, arg4 *C.int, arg5 *C.int, arg6 *C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Measure == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Measure, got none")
 	}
@@ -12250,7 +14632,7 @@ func _gotk4_gtk4_WidgetClass_measure(arg0 *C.GtkWidget, arg1 C.GtkOrientation, a
 //export _gotk4_gtk4_WidgetClass_mnemonic_activate
 func _gotk4_gtk4_WidgetClass_mnemonic_activate(arg0 *C.GtkWidget, arg1 C.gboolean) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.MnemonicActivate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.MnemonicActivate, got none")
 	}
@@ -12275,7 +14657,7 @@ func _gotk4_gtk4_WidgetClass_mnemonic_activate(arg0 *C.GtkWidget, arg1 C.gboolea
 //export _gotk4_gtk4_WidgetClass_move_focus
 func _gotk4_gtk4_WidgetClass_move_focus(arg0 *C.GtkWidget, arg1 C.GtkDirectionType) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.MoveFocus == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.MoveFocus, got none")
 	}
@@ -12290,7 +14672,7 @@ func _gotk4_gtk4_WidgetClass_move_focus(arg0 *C.GtkWidget, arg1 C.GtkDirectionTy
 //export _gotk4_gtk4_WidgetClass_query_tooltip
 func _gotk4_gtk4_WidgetClass_query_tooltip(arg0 *C.GtkWidget, arg1 C.int, arg2 C.int, arg3 C.gboolean, arg4 *C.GtkTooltip) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.QueryTooltip == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.QueryTooltip, got none")
 	}
@@ -12321,7 +14703,7 @@ func _gotk4_gtk4_WidgetClass_query_tooltip(arg0 *C.GtkWidget, arg1 C.int, arg2 C
 //export _gotk4_gtk4_WidgetClass_realize
 func _gotk4_gtk4_WidgetClass_realize(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Realize == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Realize, got none")
 	}
@@ -12332,7 +14714,7 @@ func _gotk4_gtk4_WidgetClass_realize(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_root
 func _gotk4_gtk4_WidgetClass_root(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Root == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Root, got none")
 	}
@@ -12343,7 +14725,7 @@ func _gotk4_gtk4_WidgetClass_root(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_set_focus_child
 func _gotk4_gtk4_WidgetClass_set_focus_child(arg0 *C.GtkWidget, arg1 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.SetFocusChild == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.SetFocusChild, got none")
 	}
@@ -12373,7 +14755,7 @@ func _gotk4_gtk4_WidgetClass_set_focus_child(arg0 *C.GtkWidget, arg1 *C.GtkWidge
 //export _gotk4_gtk4_WidgetClass_show
 func _gotk4_gtk4_WidgetClass_show(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Show == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Show, got none")
 	}
@@ -12384,7 +14766,7 @@ func _gotk4_gtk4_WidgetClass_show(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_size_allocate
 func _gotk4_gtk4_WidgetClass_size_allocate(arg0 *C.GtkWidget, arg1 C.int, arg2 C.int, arg3 C.int) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.SizeAllocate == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.SizeAllocate, got none")
 	}
@@ -12403,7 +14785,7 @@ func _gotk4_gtk4_WidgetClass_size_allocate(arg0 *C.GtkWidget, arg1 C.int, arg2 C
 //export _gotk4_gtk4_WidgetClass_snapshot
 func _gotk4_gtk4_WidgetClass_snapshot(arg0 *C.GtkWidget, arg1 *C.GtkSnapshot) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Snapshot == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Snapshot, got none")
 	}
@@ -12418,7 +14800,7 @@ func _gotk4_gtk4_WidgetClass_snapshot(arg0 *C.GtkWidget, arg1 *C.GtkSnapshot) {
 //export _gotk4_gtk4_WidgetClass_state_flags_changed
 func _gotk4_gtk4_WidgetClass_state_flags_changed(arg0 *C.GtkWidget, arg1 C.GtkStateFlags) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.StateFlagsChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.StateFlagsChanged, got none")
 	}
@@ -12433,7 +14815,7 @@ func _gotk4_gtk4_WidgetClass_state_flags_changed(arg0 *C.GtkWidget, arg1 C.GtkSt
 //export _gotk4_gtk4_WidgetClass_system_setting_changed
 func _gotk4_gtk4_WidgetClass_system_setting_changed(arg0 *C.GtkWidget, arg1 C.GtkSystemSetting) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.SystemSettingChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.SystemSettingChanged, got none")
 	}
@@ -12448,7 +14830,7 @@ func _gotk4_gtk4_WidgetClass_system_setting_changed(arg0 *C.GtkWidget, arg1 C.Gt
 //export _gotk4_gtk4_WidgetClass_unmap
 func _gotk4_gtk4_WidgetClass_unmap(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Unmap == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Unmap, got none")
 	}
@@ -12459,7 +14841,7 @@ func _gotk4_gtk4_WidgetClass_unmap(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_unrealize
 func _gotk4_gtk4_WidgetClass_unrealize(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Unrealize == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Unrealize, got none")
 	}
@@ -12470,7 +14852,7 @@ func _gotk4_gtk4_WidgetClass_unrealize(arg0 *C.GtkWidget) {
 //export _gotk4_gtk4_WidgetClass_unroot
 func _gotk4_gtk4_WidgetClass_unroot(arg0 *C.GtkWidget) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WidgetOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WidgetOverrides](instance0)
 	if overrides.Unroot == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WidgetOverrides.Unroot, got none")
 	}
@@ -12484,7 +14866,7 @@ func _gotk4_gtk4_Widget_ConnectDestroy(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12500,7 +14882,7 @@ func _gotk4_gtk4_Widget_ConnectDirectionChanged(arg0 C.gpointer, arg1 C.GtkTextD
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12520,7 +14902,7 @@ func _gotk4_gtk4_Widget_ConnectHide(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12536,7 +14918,7 @@ func _gotk4_gtk4_Widget_ConnectKeynavFailed(arg0 C.gpointer, arg1 C.GtkDirection
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12564,7 +14946,7 @@ func _gotk4_gtk4_Widget_ConnectMap(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12580,7 +14962,7 @@ func _gotk4_gtk4_Widget_ConnectMnemonicActivate(arg0 C.gpointer, arg1 C.gboolean
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12610,7 +14992,7 @@ func _gotk4_gtk4_Widget_ConnectMoveFocus(arg0 C.gpointer, arg1 C.GtkDirectionTyp
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12630,7 +15012,7 @@ func _gotk4_gtk4_Widget_ConnectQueryTooltip(arg0 C.gpointer, arg1 C.gint, arg2 C
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg5))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12666,7 +15048,7 @@ func _gotk4_gtk4_Widget_ConnectRealize(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12682,7 +15064,7 @@ func _gotk4_gtk4_Widget_ConnectShow(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12698,7 +15080,7 @@ func _gotk4_gtk4_Widget_ConnectStateFlagsChanged(arg0 C.gpointer, arg1 C.GtkStat
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12718,7 +15100,7 @@ func _gotk4_gtk4_Widget_ConnectUnmap(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12734,7 +15116,7 @@ func _gotk4_gtk4_Widget_ConnectUnrealize(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12747,7 +15129,7 @@ func _gotk4_gtk4_Widget_ConnectUnrealize(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gtk4_WindowClass_activate_default
 func _gotk4_gtk4_WindowClass_activate_default(arg0 *C.GtkWindow) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WindowOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WindowOverrides](instance0)
 	if overrides.ActivateDefault == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WindowOverrides.ActivateDefault, got none")
 	}
@@ -12758,7 +15140,7 @@ func _gotk4_gtk4_WindowClass_activate_default(arg0 *C.GtkWindow) {
 //export _gotk4_gtk4_WindowClass_activate_focus
 func _gotk4_gtk4_WindowClass_activate_focus(arg0 *C.GtkWindow) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WindowOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WindowOverrides](instance0)
 	if overrides.ActivateFocus == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WindowOverrides.ActivateFocus, got none")
 	}
@@ -12769,7 +15151,7 @@ func _gotk4_gtk4_WindowClass_activate_focus(arg0 *C.GtkWindow) {
 //export _gotk4_gtk4_WindowClass_close_request
 func _gotk4_gtk4_WindowClass_close_request(arg0 *C.GtkWindow) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WindowOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WindowOverrides](instance0)
 	if overrides.CloseRequest == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WindowOverrides.CloseRequest, got none")
 	}
@@ -12788,7 +15170,7 @@ func _gotk4_gtk4_WindowClass_close_request(arg0 *C.GtkWindow) (cret C.gboolean) 
 //export _gotk4_gtk4_WindowClass_enable_debugging
 func _gotk4_gtk4_WindowClass_enable_debugging(arg0 *C.GtkWindow, arg1 C.gboolean) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WindowOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WindowOverrides](instance0)
 	if overrides.EnableDebugging == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WindowOverrides.EnableDebugging, got none")
 	}
@@ -12813,7 +15195,7 @@ func _gotk4_gtk4_WindowClass_enable_debugging(arg0 *C.GtkWindow, arg1 C.gboolean
 //export _gotk4_gtk4_WindowClass_keys_changed
 func _gotk4_gtk4_WindowClass_keys_changed(arg0 *C.GtkWindow) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[WindowOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[WindowOverrides](instance0)
 	if overrides.KeysChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected WindowOverrides.KeysChanged, got none")
 	}
@@ -12827,7 +15209,7 @@ func _gotk4_gtk4_Window_ConnectActivateDefault(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12843,7 +15225,7 @@ func _gotk4_gtk4_Window_ConnectActivateFocus(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12859,7 +15241,7 @@ func _gotk4_gtk4_Window_ConnectCloseRequest(arg0 C.gpointer, arg1 C.guintptr) (c
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12883,7 +15265,7 @@ func _gotk4_gtk4_Window_ConnectEnableDebugging(arg0 C.gpointer, arg1 C.gboolean,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -12913,7 +15295,7 @@ func _gotk4_gtk4_Window_ConnectKeysChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 

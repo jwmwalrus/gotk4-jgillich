@@ -18,13 +18,134 @@ import (
 // #include <glib-object.h>
 import "C"
 
+//export _gotk4_gdk4_PaintableInterface_get_current_image
+func _gotk4_gdk4_PaintableInterface_get_current_image(arg0 *C.GdkPaintable) (cret *C.GdkPaintable) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PaintableOverrides](instance0)
+	if overrides.CurrentImage == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PaintableOverrides.CurrentImage, got none")
+	}
+
+	ret := overrides.CurrentImage()
+
+	var _ *Paintable
+
+	cret = (*C.GdkPaintable)(unsafe.Pointer(coreglib.InternObject(ret).Native()))
+	C.g_object_ref(C.gpointer(coreglib.InternObject(ret).Native()))
+
+	return cret
+}
+
+//export _gotk4_gdk4_PaintableInterface_get_flags
+func _gotk4_gdk4_PaintableInterface_get_flags(arg0 *C.GdkPaintable) (cret C.GdkPaintableFlags) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PaintableOverrides](instance0)
+	if overrides.Flags == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PaintableOverrides.Flags, got none")
+	}
+
+	paintableFlags := overrides.Flags()
+
+	var _ PaintableFlags
+
+	cret = C.GdkPaintableFlags(paintableFlags)
+
+	return cret
+}
+
+//export _gotk4_gdk4_PaintableInterface_get_intrinsic_aspect_ratio
+func _gotk4_gdk4_PaintableInterface_get_intrinsic_aspect_ratio(arg0 *C.GdkPaintable) (cret C.double) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PaintableOverrides](instance0)
+	if overrides.IntrinsicAspectRatio == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PaintableOverrides.IntrinsicAspectRatio, got none")
+	}
+
+	gdouble := overrides.IntrinsicAspectRatio()
+
+	var _ float64
+
+	cret = C.double(gdouble)
+
+	return cret
+}
+
+//export _gotk4_gdk4_PaintableInterface_get_intrinsic_height
+func _gotk4_gdk4_PaintableInterface_get_intrinsic_height(arg0 *C.GdkPaintable) (cret C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PaintableOverrides](instance0)
+	if overrides.IntrinsicHeight == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PaintableOverrides.IntrinsicHeight, got none")
+	}
+
+	gint := overrides.IntrinsicHeight()
+
+	var _ int
+
+	cret = C.int(gint)
+
+	return cret
+}
+
+//export _gotk4_gdk4_PaintableInterface_get_intrinsic_width
+func _gotk4_gdk4_PaintableInterface_get_intrinsic_width(arg0 *C.GdkPaintable) (cret C.int) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PaintableOverrides](instance0)
+	if overrides.IntrinsicWidth == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PaintableOverrides.IntrinsicWidth, got none")
+	}
+
+	gint := overrides.IntrinsicWidth()
+
+	var _ int
+
+	cret = C.int(gint)
+
+	return cret
+}
+
+//export _gotk4_gdk4_PaintableInterface_snapshot
+func _gotk4_gdk4_PaintableInterface_snapshot(arg0 *C.GdkPaintable, arg1 *C.GdkSnapshot, arg2 C.double, arg3 C.double) {
+	instance0 := coreglib.Take(unsafe.Pointer(arg0))
+	overrides := coreglib.OverridesFromGType[PaintableOverrides](instance0)
+	if overrides.Snapshot == nil {
+		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected PaintableOverrides.Snapshot, got none")
+	}
+
+	var _snapshot Snapshotter // out
+	var _width float64        // out
+	var _height float64       // out
+
+	{
+		objptr := unsafe.Pointer(arg1)
+		if objptr == nil {
+			panic("object of type gdk.Snapshotter is nil")
+		}
+
+		object := coreglib.Take(objptr)
+		casted := object.WalkCast(func(obj coreglib.Objector) bool {
+			_, ok := obj.(Snapshotter)
+			return ok
+		})
+		rv, ok := casted.(Snapshotter)
+		if !ok {
+			panic("no marshaler for " + object.TypeFromInstance().String() + " matching gdk.Snapshotter")
+		}
+		_snapshot = rv
+	}
+	_width = float64(arg2)
+	_height = float64(arg3)
+
+	overrides.Snapshot(_snapshot, _width, _height)
+}
+
 //export _gotk4_gdk4_Paintable_ConnectInvalidateContents
 func _gotk4_gdk4_Paintable_ConnectInvalidateContents(arg0 C.gpointer, arg1 C.guintptr) {
 	var f func()
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -40,7 +161,7 @@ func _gotk4_gdk4_Paintable_ConnectInvalidateSize(arg0 C.gpointer, arg1 C.guintpt
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -56,7 +177,7 @@ func _gotk4_gdk4_Clipboard_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -69,7 +190,7 @@ func _gotk4_gdk4_Clipboard_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 //export _gotk4_gdk4_ContentProviderClass_attach_clipboard
 func _gotk4_gdk4_ContentProviderClass_attach_clipboard(arg0 *C.GdkContentProvider, arg1 *C.GdkClipboard) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.AttachClipboard == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.AttachClipboard, got none")
 	}
@@ -84,7 +205,7 @@ func _gotk4_gdk4_ContentProviderClass_attach_clipboard(arg0 *C.GdkContentProvide
 //export _gotk4_gdk4_ContentProviderClass_content_changed
 func _gotk4_gdk4_ContentProviderClass_content_changed(arg0 *C.GdkContentProvider) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.ContentChanged == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.ContentChanged, got none")
 	}
@@ -95,7 +216,7 @@ func _gotk4_gdk4_ContentProviderClass_content_changed(arg0 *C.GdkContentProvider
 //export _gotk4_gdk4_ContentProviderClass_detach_clipboard
 func _gotk4_gdk4_ContentProviderClass_detach_clipboard(arg0 *C.GdkContentProvider, arg1 *C.GdkClipboard) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.DetachClipboard == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.DetachClipboard, got none")
 	}
@@ -110,7 +231,7 @@ func _gotk4_gdk4_ContentProviderClass_detach_clipboard(arg0 *C.GdkContentProvide
 //export _gotk4_gdk4_ContentProviderClass_get_value
 func _gotk4_gdk4_ContentProviderClass_get_value(arg0 *C.GdkContentProvider, arg1 *C.GValue, _cerr **C.GError) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.Value == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.Value, got none")
 	}
@@ -131,7 +252,7 @@ func _gotk4_gdk4_ContentProviderClass_get_value(arg0 *C.GdkContentProvider, arg1
 //export _gotk4_gdk4_ContentProviderClass_ref_formats
 func _gotk4_gdk4_ContentProviderClass_ref_formats(arg0 *C.GdkContentProvider) (cret *C.GdkContentFormats) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.RefFormats == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.RefFormats, got none")
 	}
@@ -148,7 +269,7 @@ func _gotk4_gdk4_ContentProviderClass_ref_formats(arg0 *C.GdkContentProvider) (c
 //export _gotk4_gdk4_ContentProviderClass_ref_storable_formats
 func _gotk4_gdk4_ContentProviderClass_ref_storable_formats(arg0 *C.GdkContentProvider) (cret *C.GdkContentFormats) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.RefStorableFormats == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.RefStorableFormats, got none")
 	}
@@ -165,7 +286,7 @@ func _gotk4_gdk4_ContentProviderClass_ref_storable_formats(arg0 *C.GdkContentPro
 //export _gotk4_gdk4_ContentProviderClass_write_mime_type_finish
 func _gotk4_gdk4_ContentProviderClass_write_mime_type_finish(arg0 *C.GdkContentProvider, arg1 *C.GAsyncResult, _cerr **C.GError) (cret C.gboolean) {
 	instance0 := coreglib.Take(unsafe.Pointer(arg0))
-	overrides := coreglib.OverridesFromObj[ContentProviderOverrides](instance0)
+	overrides := coreglib.OverridesFromGType[ContentProviderOverrides](instance0)
 	if overrides.WriteMIMETypeFinish == nil {
 		panic("gotk4: " + instance0.TypeFromInstance().String() + ": expected ContentProviderOverrides.WriteMIMETypeFinish, got none")
 	}
@@ -207,7 +328,7 @@ func _gotk4_gdk4_ContentProvider_ConnectContentChanged(arg0 C.gpointer, arg1 C.g
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -223,7 +344,7 @@ func _gotk4_gdk4_Device_ConnectChanged(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -239,7 +360,7 @@ func _gotk4_gdk4_Device_ConnectToolChanged(arg0 C.gpointer, arg1 *C.GdkDeviceToo
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -259,7 +380,7 @@ func _gotk4_gdk4_Display_ConnectClosed(arg0 C.gpointer, arg1 C.gboolean, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -281,7 +402,7 @@ func _gotk4_gdk4_Display_ConnectOpened(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -297,7 +418,7 @@ func _gotk4_gdk4_Display_ConnectSeatAdded(arg0 C.gpointer, arg1 *C.GdkSeat, arg2
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -333,7 +454,7 @@ func _gotk4_gdk4_Display_ConnectSeatRemoved(arg0 C.gpointer, arg1 *C.GdkSeat, ar
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -369,7 +490,7 @@ func _gotk4_gdk4_Display_ConnectSettingChanged(arg0 C.gpointer, arg1 *C.gchar, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -389,7 +510,7 @@ func _gotk4_gdk4_DisplayManager_ConnectDisplayOpened(arg0 C.gpointer, arg1 *C.Gd
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -409,7 +530,7 @@ func _gotk4_gdk4_Drag_ConnectCancel(arg0 C.gpointer, arg1 C.GdkDragCancelReason,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -429,7 +550,7 @@ func _gotk4_gdk4_Drag_ConnectDNDFinished(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -445,7 +566,7 @@ func _gotk4_gdk4_Drag_ConnectDropPerformed(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -461,7 +582,7 @@ func _gotk4_gdk4_FrameClock_ConnectAfterPaint(arg0 C.gpointer, arg1 C.guintptr) 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -477,7 +598,7 @@ func _gotk4_gdk4_FrameClock_ConnectBeforePaint(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -493,7 +614,7 @@ func _gotk4_gdk4_FrameClock_ConnectFlushEvents(arg0 C.gpointer, arg1 C.guintptr)
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -509,7 +630,7 @@ func _gotk4_gdk4_FrameClock_ConnectLayout(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -525,7 +646,7 @@ func _gotk4_gdk4_FrameClock_ConnectPaint(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -541,7 +662,7 @@ func _gotk4_gdk4_FrameClock_ConnectResumeEvents(arg0 C.gpointer, arg1 C.guintptr
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -557,7 +678,7 @@ func _gotk4_gdk4_FrameClock_ConnectUpdate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -573,7 +694,7 @@ func _gotk4_gdk4_Monitor_ConnectInvalidate(arg0 C.gpointer, arg1 C.guintptr) {
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -589,7 +710,7 @@ func _gotk4_gdk4_Seat_ConnectDeviceAdded(arg0 C.gpointer, arg1 *C.GdkDevice, arg
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -625,7 +746,7 @@ func _gotk4_gdk4_Seat_ConnectDeviceRemoved(arg0 C.gpointer, arg1 *C.GdkDevice, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -661,7 +782,7 @@ func _gotk4_gdk4_Seat_ConnectToolAdded(arg0 C.gpointer, arg1 *C.GdkDeviceTool, a
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -681,7 +802,7 @@ func _gotk4_gdk4_Seat_ConnectToolRemoved(arg0 C.gpointer, arg1 *C.GdkDeviceTool,
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -701,7 +822,7 @@ func _gotk4_gdk4_Surface_ConnectEnterMonitor(arg0 C.gpointer, arg1 *C.GdkMonitor
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -721,7 +842,7 @@ func _gotk4_gdk4_Surface_ConnectEvent(arg0 C.gpointer, arg1 *C.gpointer, arg2 C.
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -765,7 +886,7 @@ func _gotk4_gdk4_Surface_ConnectLayout(arg0 C.gpointer, arg1 C.gint, arg2 C.gint
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg3))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -787,7 +908,7 @@ func _gotk4_gdk4_Surface_ConnectLeaveMonitor(arg0 C.gpointer, arg1 *C.GdkMonitor
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -807,7 +928,7 @@ func _gotk4_gdk4_Surface_ConnectRender(arg0 C.gpointer, arg1 *C.cairo_region_t, 
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg2))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 
@@ -842,7 +963,7 @@ func _gotk4_gdk4_VulkanContext_ConnectImagesUpdated(arg0 C.gpointer, arg1 C.guin
 	{
 		closure := coreglib.ConnectedGeneratedClosure(uintptr(arg1))
 		if closure == nil {
-			panic("given unknown closure user_data")
+			return
 		}
 		defer closure.TryRepanic()
 

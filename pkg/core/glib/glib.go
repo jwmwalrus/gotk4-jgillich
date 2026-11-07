@@ -468,6 +468,14 @@ func WipeAllClosures(objector Objector) {
 // Destroy destroys the Go reference to the given object. The object must not be
 // used ever again; it is the caller's responsibility to ensure that it will
 // never be used again. Resurrecting the object again is undefined behavior.
+//
+// Destroy is synchronous. Call it from the object's owning GLib/GTK thread:
+// removing the last toggle reference can run native dispose and finalize
+// methods on this calling thread. If the object is left for Go finalization,
+// cleanup is dispatched through the default main context and requires that
+// context to be iterated.
+// Destroy must not run concurrently with Connect, ConnectAfter, or any other
+// operation that registers signal closures on the same wrapper.
 func Destroy(objector Objector) {
 	v := BaseObject(objector)
 	if v == nil {
@@ -512,8 +520,7 @@ func ConnectGeneratedClosure(
 	closures := v.box.Closures()
 	closures.RegisterSignal(unsafe.Pointer(gclosure), fs)
 
-	// Keep the closure independent of the owning GObject; the signal connection
-	// and the toggle ref already keep it alive during signal emission.
+	C.g_object_watch_closure(v.native(), gclosure)
 
 	// TODO: intern this.
 	csignal := (*C.gchar)(C.CString(signal))
@@ -1504,6 +1511,9 @@ func marshalPointer(p uintptr) (interface{}, error) {
 	return unsafe.Pointer(c), nil
 }
 
+// The GValue pointer is supplied by the C marshal callback and is valid for
+// the duration of this call; checkptr cannot prove that C-owned lifetime.
+//
 //go:nocheckptr
 func marshalObject(p uintptr) (interface{}, error) {
 	c := C.g_value_get_object((*C.GValue)(unsafe.Pointer(p)))

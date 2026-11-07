@@ -33,7 +33,11 @@ static void release_ref(gpointer obj) {
 }
 
 static void notify_name(gpointer obj) {
-  g_object_notify(G_OBJECT(obj), "name");
+	g_object_notify(G_OBJECT(obj), "name");
+}
+
+static void emit_clicked(gpointer obj) {
+	g_signal_emit_by_name(G_OBJECT(obj), "clicked");
 }
 
 // new_gobject creates a fresh GObject of the base GObject type and
@@ -95,6 +99,10 @@ func NotifyName(ptr unsafe.Pointer) {
 	C.notify_name(C.gpointer(ptr))
 }
 
+func EmitClicked(ptr unsafe.Pointer) {
+	C.emit_clicked(C.gpointer(ptr))
+}
+
 // Release drops a reference returned by Hold.
 func Release(ptr unsafe.Pointer) {
 	C.release_ref(C.gpointer(ptr))
@@ -121,10 +129,14 @@ func ForceGC() {
 
 func AssertFreed(t *testing.T, obj *TrackedObject, context string) {
 	t.Helper()
-	ForceGC()
+	deadline := time.Now().Add(2 * time.Second)
+	for !obj.IsFinalized() && time.Now().Before(deadline) {
+		runtime.GC()
+		time.Sleep(10 * time.Millisecond)
+		C.iterate_default_context()
+	}
 	if !obj.IsFinalized() {
-		t.Errorf("LEAK [%s]: object at %p was not freed (ref_count=%d)",
-			context, obj.ptr, obj.RefCount())
+		t.Errorf("LEAK [%s]: object at %p was not freed (ref_count=%d)", context, obj.ptr, obj.RefCount())
 	}
 }
 
